@@ -36,7 +36,7 @@ class Client(object):
         while attempts < self.retries:
             try:
                 response = request()
-            except requests.ConnectionError, ce:
+            except (requests.ConnectionError, HTTPError) as ce:
                 logger.error('Error connecting to New Relic API: {}'.format(ce))
                 sleep(self.retry_delay)
                 attempts += 1
@@ -44,8 +44,8 @@ class Client(object):
                 break
         if not response:
             raise NewRelicApiException
-        if response.error:
-            _handle_api_error(response.error)
+        if not str(response.status_code).startswith('2') :
+            _handle_api_error(response.status_code)
         return _parse_xml(response)
 
     def _parse_xml(response):
@@ -60,37 +60,66 @@ class Client(object):
         return tree
 
 
-    def _handle_api_error(error):
-        pass
+    def _handle_api_error(status_code):
+        if 403 == status_code:
+            raise NewRelicInvalidApiKeyException
+        elif 404 == status_code:
+            raise NewRelicUnknownApplicationException
+        elif 422 == status_code:
+            raise NewRelicInvalidParameterException
+        else:
+            raise NewRelicApiException
 
 
-    def _make_get_request(uri, headers):
+    def _make_get_request(uri):
         """
-        Given a request add in the required parameters and return the XML.  Handle any errors.
+        Given a request add in the required parameters and return the parsed XML object. 
         """
-        return _make_request(requests.get(uri, headers=headers))
-        
+        return _make_request(requests.get(uri, headers=self.headers, timeout=0.400))
+ 
+    def _make_post_request(uri):
+        """
+        Given a request add in the required parameters and return the parsed XML object. 
+        """
+        return _make_request(requests.post(uri, payload, headers=self.headers, timeout=0.400))
+
     def view_applications(self):
         """
         Requires: account ID
-        Returns: a list of tuples (application name, id, url)
+        Returns: a list of Application objects
         Errors: 403 Invalid API Key
         Method: Get
         """
         uri = "https://rpm.newrelic.com/accounts/{0}/applications.xml".format(self.account_id)
-        response = _make_request(uri, self.headers)
+        response = _make_get_request(uri)
+        applications = []
+
+        for application in response.xpath('/applications/application'):
+            application_properties = {}
+            for field in application:
+                application_properties[field.tag] = field.text
+            applications.append(Application(application_properties))
+        return applications
 
 
-
-    def delete_applications():
+    def delete_applications(applications):
         """
-        Requires: account ID, application ID (or name)
+        Requires: account ID, application ID (or name).  Input shouuld be a dictionary { 'app_id': 1234 , 'app': 'My Application'}
         Returns:  list of failed deletions (if any)
         Endpoint: api.newrelic.com
         Errors: None Explicit, failed deletions will be in XML
         Method: Post
         """
-        pass
+        uri = "https://api.newrelic.com/api/v1/accounts/{0}/applications/delete.xml".format(self.account_id)
+        payload = applications
+        response = _make_post_request(uri, payload)
+        failed_deletions = {}
+
+        for application in response.xpath('/applications/application'):
+            if not 'deleted' in application.xpath('result').text:
+                failed_deletions['app_id'] = application.id
+
+        return failed_deletions
 
     def get_application_summary_metrics():
         """
@@ -129,31 +158,44 @@ class Client(object):
         Errors: 403 Invalid API key, 422 Invalid Parameters
         Returns: A list of tuples, (app name, begin_time, end_time, metric_name, [(field name, value),...])
         """
+        pass
 
 
 class NewRelicApiException(Exception):
     """Parent class for New Relic Exceptions"""
-    def __init__(self, message, Errors):
+    def __init__(self):
         super(NewRelicApiException, self).__init__()
+        pass
 
+class NewRelicInvalidApiKeyException(NewRelicApiException):
+    """docstring for NewRelicApiKeyException"""
+    def __init__(self):
+        super(NewRelicInvalidApiKeyException, self).__init__()
+        pass
 
 class NewRelicCredentialException(NewRelicApiException):
     """docstring for NewRelicCredentialException"""
-    def __init__(self, arg):
+    def __init__(self):
         super(NewRelicCredentialException, self).__init__()
-        self.arg = arg
+        pass
 
 class NewRelicInvalidParameterException(NewRelicApiException):
     """docstring for NewRelicInvalidParameterException"""
-    def __init__(self, arg):
+    def __init__(self):
         super(NewRelicInvalidParameterException, self).__init__()
-        self.arg = arg
+        pass
                         
 class NewRelicUnknownApplicationException(NewRelicApiException):
     """docstring for NewRelicUnknownApplicationException"""
-    def __init__(self, arg):
+    def __init__(self):
         super(NewRelicUnknownApplicationException, self).__init__()
-        self.arg = arg
+        pass
         
+class Application(object):
+    def __init__(self, properties):
+        super(Application, self).__init__()
+        name = properties['name']
+        app_id = properties['id']
+        url = properties['overview-url']
 
 
