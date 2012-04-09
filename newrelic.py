@@ -16,11 +16,14 @@ import pprint
 logger = logging.getLogger(__name__)
 
 class Client(object):
-    """A Client for interacting with New Relic resources"""
+    """
+    A Client for interacting with New Relic resources
+    """
     def __init__(self, account_id=None, api_key=None, proxy=None, retries=3, retry_delay=1, timeout=1.000, debug=False):
         """
         Create a NewRelic REST API client
-        TODO: implement proxy support
+        Required Parameters: account_id, api_key
+        Optional Parameters: proxy, retries, retry_delay, timeout, debug
         """
         # Get Account Credentials
 
@@ -33,14 +36,27 @@ class Client(object):
 
                 """)
 
-        # TODO: Check if pro account
+        # TODO: Check if pro account (For now we can assume a pro account since that is the main use case)
         self.account_id = account_id
         self.api_key = api_key
         self.headers = { 'x-api-key': api_key }
-        self.proxy = proxy
         self.retries = retries
         self.retry_delay = retry_delay
         self.timeout = timeout
+
+        # Figure out what kind of information we were given for proxy settings (if any)
+        self.proxy = proxy
+        if type(proxy) is 'str' and ':' in proxy:
+            self.proxy = {
+                          "http" : proxy,
+                          "https" : proxy,
+                         }
+        elif type(proxy) is 'dict':
+            self.proxy = proxy
+
+        # Set our debug state. For now this just prints the request string,
+        # additional debugging may be added in the future although most debugging can be
+        # done by examining the exceptions returned
         self.debug = debug
         if self.debug is True:
             self.config = {'verbose': sys.stderr}
@@ -48,11 +64,26 @@ class Client(object):
             self.config = {}
 
     def _make_request(self, request, uri, **kwargs):
+        """
+        This is final step of calling out to the remote API.  We set up our headers, proxy, debugging etc.
+        The only things in **kwargs are parameters that are overridden on an API method basis (like timeout)
+
+        We have a simple attempt/while loop to implement retries w/ delays to avoid the brittleness of talking
+        over the network to remote services.  These settings can be overridden when creating the Client.
+
+        We catch the 'requests' exceptions during our retries and eventually raise our own NewRelicApiException
+        if we are unsuccessful in contacting the New Relic API. Additionally we process any non 200 HTTP Errors
+        and raise an appropriate exception according to the New Relic API documentation.  
+
+        Finally we pass back the response text to our XML parser since we have no business parsing that here. It could
+        be argued that handling API exceptions/errors shouldn't belong in this method but it is simple enough
+        for now. 
+        """
         attempts = 1
         response = None
         while attempts <= self.retries:
             try:
-                response = request(uri, config=self.config, **kwargs)
+                response = request(uri, config=self.config, headers=self.headers, proxies=self.proxy, **kwargs)
             except (requests.ConnectionError, requests.HTTPError) as ce:
                 logger.error('Error connecting to New Relic API: {}'.format(ce))
                 sleep(self.retry_delay)
@@ -68,6 +99,11 @@ class Client(object):
         return self._parse_xml(response.text)
 
     def _parse_xml(self, response):
+        """
+        Run our XML parser (lxml in this case) over our response text.  Lxml doesn't enjoy having xml/encoding
+        information in the header so we strip that out if necessary. We return a parsed XML object that can be
+        used by the calling API method and massaged into a more appropriate format.
+        """
         parser = etree.XMLParser(remove_blank_text=True, strip_cdata=False, ns_clean=True, recover=True)
         if response.startswith('<?xml version="1.0" encoding="UTF-8"?>'):
             response = '\n'.join(response.split('\n')[1:])
@@ -75,6 +111,10 @@ class Client(object):
         return tree
 
     def _handle_api_error(self, status_code, error_message):
+        """
+        New Relic cheerfully provides expected API error codes depending on your API call deficiencies so we
+        convert these to exceptions and raise them for the user to handle as they see fit.
+        """
         if 403 == status_code:
             raise NewRelicInvalidApiKeyException(error_message)
         elif 404 == status_code:
@@ -91,7 +131,7 @@ class Client(object):
         """
         if not timeout:
             timeout = self.timeout
-        return self._make_request(requests.get, uri, params=parameters, headers=self.headers, timeout=timeout)
+        return self._make_request(requests.get, uri, params=parameters, timeout=timeout)
  
     def _make_post_request(self, uri, payload, timeout=None):
         """
@@ -99,7 +139,7 @@ class Client(object):
         """
         if not timeout:
             timeout = self.timeout
-        return self._make_request(requests.post, uri, payload, headers=self.headers, timeout=timeout)
+        return self._make_request(requests.post, uri, payload, timeout=timeout)
 
     def _api_rate_limit_exceeded(self, api_call, window=60):
         """
@@ -108,9 +148,11 @@ class Client(object):
         we make so that we can check it later.  We return the amount of time until we can perform another API call so that appropriate waiting
         can be implemented.
         """
+        # The structure of this could be handled a little bit more cleanly using the python datetime libraries 
         current_call_time = int(time())
         try:
             previous_call_time = getattr(self, api_call.__name__ + ".window")
+            # Force the calling of our property so we can handle not having set it yet.
             previous_call_time.__str__
         except AttributeError:
             previous_call_time = 0
@@ -124,7 +166,7 @@ class Client(object):
 
     def view_applications(self):
         """
-        Requires: account ID
+        Requires: account ID (taken from Client object)
         Returns: a list of Application objects
         Errors: 403 Invalid API Key
         Method: Get
@@ -172,30 +214,39 @@ class Client(object):
         """
         pass
 
-    # TODO: Dashboard HTML fragments
-
-    # TODO: Deployment Notification
+    def get_dashboard_html_fragment(self):
+        # TODO: Dashboard HTML fragments
+        pass
+    
+    def notify_deployment(self):
+        # TODO: Deployment Notification
+        pass
 
     def get_metric_names(self, app_id, re=None, limit=5000):
         """
         Requires: application ID
         Optional: Regex to filter metric names, limit of results
-        Returns: A dictionary, key => metric name, value => list of metrics for a given metric
+        Returns: A dictionary, key => metric name, value => list of fields available for a given metric
         Method: Get
         Restrictions: Rate limit to 1x per minute
         Errors: 403 Invalid API Key, 422 Invalid Parameters
         Endpoint: api.newrelic.com
         """
+        # Make sure we play it slow
         if self._api_rate_limit_exceeded(self.get_metric_data):
             raise NewRelicApiRateLimitException(str(self._api_rate_limit_exceeded(self.get_metric_data)))
 
+        # Construct our GET request parameters into a nice dictionary
         parameters = {'re': re, 'limit': limit}
 
         uri = "https://api.newrelic.com/api/v1/applications/{0}/metrics.xml".format(str(app_id))
         # A longer timeout is needed due to the amount of data that can be returned without a regex search
         response = self._make_get_request(uri, parameters=parameters, timeout=5.000)
+        
+        # Parse the response. It seems clearer to return a dict of metrics/fields instead of a list of metric objects.
+        # It might be more consistent with the retrieval of metric data to make them objects but since the attributes
+        # in each type of metric object are different (and we aren't going to make heavyweight objects) we don't want to. 
         metrics = {}
-
         for metric in response.xpath('/metrics/metric'):
             fields = []
             for field in metric.xpath('fields/field'):
@@ -213,6 +264,8 @@ class Client(object):
         Returns: A list of metric objects, each will have information about its start/end time, application, metric name and 
                  any associated values
         """
+        # TODO: it may be nice to have some helper methods that make it easier to query by common time frames based off
+        #       the time period folding of the metrics returned by the New Relic API.
 
         # Make sure we aren't going to hit an API timeout
         if self._api_rate_limit_exceeded(self.get_metric_data):
@@ -222,6 +275,7 @@ class Client(object):
         parameters = OrderedDict()
 
         # Figure out what we were passed and set our parameter correctly
+        # TODO: allow querying by something other than an application name/id, such as server id or agent id        
         try:
             int(applications[0])
         except ValueError:
@@ -234,11 +288,8 @@ class Client(object):
 
         # Set our parameters
         parameters[app_string] = applications
-
         parameters['metrics[]'] = metrics
-
         parameters['field'] = field
-
         parameters['begin'] = begin
         parameters['end'] = end
         parameters['summary'] = int(summary)
@@ -247,12 +298,12 @@ class Client(object):
         # A longer timeout is needed due to the amount of data that can be returned
         response = self._make_get_request(uri, parameters=parameters, timeout=5.000)
 
-        # Parsing our response
-        returned_metrics = []
+        # Parsing our response into lightweight objects and creating a list.  The dividing factor is the time period
+        # covered by the metric , there should be no overlaps in time. 
+        metrics = []
         for metric in response.xpath('/metrics/metric'):
-            m = Metric(metric)
-            returned_metrics.append(m)
-        return returned_metrics
+            metrics.append(Metric(metric))
+        return metrics
 
 # Exceptions
 
@@ -289,6 +340,9 @@ class NewRelicApiRateLimitException(NewRelicApiException):
 # Data Classes
         
 class Application(object):
+    """
+    A simple dumb object for easily containing the data returned from a "view_applications" call
+    """
     def __init__(self, properties):
         super(Application, self).__init__()
         self.name = properties['name']
@@ -296,6 +350,10 @@ class Application(object):
         self.url = properties['overview-url']
 
 class Metric(object):
+    """
+    An object to contain the data for one time period in a "get_metric_data" call. The properties are
+    dynamic and based off the field names in the XML response
+    """
     def __init__(self, metric):
         super(Metric, self).__init__()
         for k,v in metric.items():
