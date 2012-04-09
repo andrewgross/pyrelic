@@ -1,3 +1,7 @@
+# Installation
+
+pip install pyrelic
+
 # Introduction
 
 A NewRelic Client library written in python (since not all of us use ruby).
@@ -70,3 +74,5 @@ Sometime soon I hope to finish implementing the last few TODO's including HTML s
 A special thanks to [Mingwei Gu](https://github.com/Mingweigu) for working with me to get the first version of this working as we wrapped our head around parsing the response XML.
 
 Thanks to [Yipit](https://github.com/Yipit) for letting me divert time to this project so I could clean it up and open source it.
+
+Thanks to [Gabriel Falcão](https://github.com/gabrielfalcao) for helping me add this to pypi.
