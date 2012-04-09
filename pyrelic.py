@@ -3,15 +3,9 @@ import logging
 import sys
 
 from time import time
-from urllib import urlencode
 from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
-
-from collections import OrderedDict
-from urllib import urlencode
-
-import pprint
 
 logger = logging.getLogger(__name__)
 
@@ -272,7 +266,7 @@ class Client(object):
             raise NewRelicApiRateLimitException(str(self._api_rate_limit_exceeded(self.get_metric_data)))
 
         # Just in case the API needs parameters to be in order
-        parameters = OrderedDict()
+        parameters = {}
 
         # Figure out what we were passed and set our parameter correctly
         # TODO: allow querying by something other than an application name/id, such as server id or agent id        
