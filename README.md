@@ -64,3 +64,9 @@ if len(failed_deletions) is 0:
 # Future Development
 
 Sometime soon I hope to finish implementing the last few TODO's including HTML snippets, application summary metrics and deployment notifications.  Ideally this project can be taken over and maintained by New Relic since it is obvious that they would be best to maintain their own API clients.
+
+# Shout Outs
+
+A special thanks to [Mingwei Gu](https://github.com/Mingweigu) for working with me to get the first version of this working as we wrapped our head around parsing the response XML.
+
+Thanks to [Yipit](https://github.com/Yipit) for letting me divert time to this project so I could clean it up and open source it.
