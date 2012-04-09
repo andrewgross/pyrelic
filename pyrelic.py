@@ -32,7 +32,7 @@ class Client(object):
                 NewRelic could not find your account credentials. Pass them into the 
                 Client like this:
 
-                    client = newrelic.Client(account='12345', apikey='1234567890abcdef123456789')
+                    client = pyrelic.Client(account='12345', apikey='1234567890abcdef123456789')
 
                 """)
 
