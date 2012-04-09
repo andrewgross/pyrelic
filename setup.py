@@ -23,7 +23,7 @@ def get_packages():
     return packages
 
 setup(name='pyrelic',
-    version='0.1.0',
+    version='0.2.0',
     description='New Relic Python API Client',
     author=u'Andrew Gross',
     author_email='andrew.w.gross@gmail.com',
