@@ -185,7 +185,7 @@ class Client(object):
 
     def delete_applications(self, applications):
         """
-        Requires: account ID, application ID (or name).  Input shouuld be a dictionary { 'app_id': 1234 , 'app': 'My Application'}
+        Requires: account ID, application ID (or name).  Input should be a dictionary { 'app_id': 1234 , 'app': 'My Application'}
         Returns:  list of failed deletions (if any)
         Endpoint: api.newrelic.com
         Errors: None Explicit, failed deletions will be in XML
@@ -335,7 +335,7 @@ class NewRelicUnknownApplicationException(NewRelicApiException):
 class NewRelicApiRateLimitException(NewRelicApiException):
     def __init__(self, message):
         super(NewRelicApiRateLimitException, self).__init__(message)
-        pass
+        self.timeout = message
         
 # Data Classes
         
