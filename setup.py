@@ -30,7 +30,7 @@ setup(name='pyrelic',
     url='http://github.com/andrewgross/pyrelic',
     packages=['pyrelic'],
     install_requires=[
-        "lxml",
+        "lxml", "requests"
     ],
     
 )
