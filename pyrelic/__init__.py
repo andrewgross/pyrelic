@@ -1,11 +1,11 @@
 import requests
 import logging
 import sys
+from xml.etree.ElementTree import XML, XMLParser
 
 from time import time
 from time import sleep
-from lxml import etree
-from lxml.etree import XMLSyntaxError
+
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +48,11 @@ class Client(object):
         elif type(proxy) is 'dict':
             self.proxy = proxy
 
-        # Set our debug state. For now this just prints the request string,
+        # Set our debug state. For now this just prints the request string, and response text,
         # additional debugging may be added in the future although most debugging can be
         # done by examining the exceptions returned
         self.debug = debug
-        if self.debug is True:
+        if self.debug:
             self.config = {'verbose': sys.stderr}
         else:
             self.config = {}
@@ -90,6 +90,8 @@ class Client(object):
             raise NewRelicApiException('No response received from NewRelic API')
         if not str(response.status_code).startswith('2'):
             self._handle_api_error(response.status_code)
+        if self.debug:
+            print response.text    
         return self._parse_xml(response.text)
 
     def _parse_xml(self, response):
@@ -98,11 +100,9 @@ class Client(object):
         information in the header so we strip that out if necessary. We return a parsed XML object that can be
         used by the calling API method and massaged into a more appropriate format.
         """
-        parser = etree.XMLParser(remove_blank_text=True, strip_cdata=False, ns_clean=True, recover=True)
-        if response.startswith('<?xml version="1.0" encoding="UTF-8"?>'):
-            response = '\n'.join(response.split('\n')[1:])
-        tree = etree.XML(response, parser)
-        return tree
+        #if response.startswith('<?xml version="1.0" encoding="UTF-8"?>'):
+        #    response = ''.join(response.split('\n')[1:])
+        return XML(response)
 
     def _handle_api_error(self, status_code, error_message):
         """
@@ -133,7 +133,7 @@ class Client(object):
         """
         if not timeout:
             timeout = self.timeout
-        return self._make_request(requests.post, uri, payload, timeout=timeout)
+        return self._make_request(requests.post, uri, data=payload, timeout=timeout)
 
     def _api_rate_limit_exceeded(self, api_call, window=60):
         """
@@ -157,6 +157,17 @@ class Client(object):
         else:
             return window - (current_call_time - previous_call_time)
 
+    def test_parser(self):
+        uri = "https://rpm.newrelic.com/accounts/{0}/applications.xml".format(self.account_id)
+        response = self._make_get_request(uri)
+
+        for element in response:
+            for e in element:
+                for k,v in e.attrib.iteritems():
+                    print "%s: %s" % (k, v)
+                print "%s: %s" % (e.tag, e.text)
+
+
 
     def view_applications(self):
         """
@@ -169,12 +180,21 @@ class Client(object):
         response = self._make_get_request(uri)
         applications = []
 
-        for application in response.xpath('/applications/application'):
+        for application in response:
             application_properties = {}
             for field in application:
                 application_properties[field.tag] = field.text
+                print application_properties
             applications.append(Application(application_properties))
         return applications
+
+
+        # for application in response.xpath('/applications/application'):
+        #     application_properties = {}
+        #     for field in application:
+        #         application_properties[field.tag] = field.text
+        #     applications.append(Application(application_properties))
+        # return applications
 
 
     def delete_applications(self, applications):
@@ -188,12 +208,12 @@ class Client(object):
         uri = "https://api.newrelic.com/api/v1/accounts/{0}/applications/delete.xml".format(self.account_id)
         payload = applications
         response = self._make_post_request(uri, payload)
-        failed_deletions = {}
+        failed_deletions = []
 
-        for application in response.xpath('/applications/application'):
-            if not 'deleted' in application.xpath('result').text:
-                failed_deletions['app_id'] = application.id
-
+        for application in response:
+            for field in application:
+                if 'result' in field.tag and not 'deleted' in field.text:
+                    failed_deletions.append(application.attrib['id'])
         return failed_deletions
 
     def get_application_summary_metrics(self, application_ids):
