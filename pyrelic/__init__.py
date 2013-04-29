@@ -299,6 +299,28 @@ class Client(object):
             metrics.append(Metric(metric))
         return metrics
 
+    def get_threshold_values(self, application_id):
+        """
+        Requires: account ID, list of application ID
+        Method: Get
+        Endpoint: api.newrelic.com
+        Restrictions: ???
+        Errors: 403 Invalid API key, 422 Invalid Parameters
+        Returns: A list of threshold_value objects, each will have information about its start/end time, metric name,
+                 metric value, and the current threshold
+        """
+        uri = "https://rpm.newrelic.com/accounts/{0}/applications/{1}/threshold_values.xml".format(self.account_id, application_id)
+        response = self._make_get_request(uri)
+        thresholds = []
+
+        for threshold_value in response.xpath('/threshold-values/threshold_value'):
+            properties = {}
+            # a little ugly, but the output works fine.
+            for tag, text in threshold_value.items():
+                properties[tag] = text
+            thresholds.append(Threshold(properties))
+        return thresholds
+
 # Exceptions
 
 class NewRelicApiException(Exception):
@@ -356,5 +378,18 @@ class Metric(object):
             # Each field has a 'name=metric_type' section. We want to have this accessible in the object by calling the 
             # metric_type property of the object directly  
             setattr(self, field.values()[0], field.text)
+            
+class Threshold(object):
+    """
+    A simple dumb object for easily containing the data returned from a "threshold_values" call
+    """
+    def __init__(self, properties):
+        super(Threshold, self).__init__()
+        self.name = properties['name']
+        self.metric_value = properties['metric_value']
+        self.formatted_metric_value = properties['formatted_metric_value']
+        self.threshold_value = properties['threshold_value']
+        self.begin_time = properties['begin_time']
+        self.end_time = properties['end_time']
 
 
