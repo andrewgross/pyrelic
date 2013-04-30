@@ -23,14 +23,14 @@ def get_packages():
     return packages
 
 setup(name='pyrelic',
-    version='0.2.0',
+    version='0.3.0',
     description='New Relic Python API Client',
     author=u'Andrew Gross',
     author_email='andrew.w.gross@gmail.com',
     url='http://github.com/andrewgross/pyrelic',
     packages=['pyrelic'],
     install_requires=[
-        "lxml", "requests"
+        "lxml", "requests==0.14.2"
     ],
     
 )
