@@ -1,5 +1,8 @@
 build/*
 *.pyc
-dist/**
 dist/
-pyrelic.egg-info/**
+*.egg-info/
+.build.log
+.coverage
+.DS_Store
+*~
