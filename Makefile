@@ -30,9 +30,9 @@ prepare: clean install_deps
 run_test:
 	@if [ -d tests/$(suite) ]; then \
 		echo "Running \033[0;32m$(suite)\033[0m test suite"; \
-		make prepare && \
+		make clean && \
 			nosetests --stop --with-coverage --cover-package=$(PACKAGE) \
-				--cover-branches --verbosity=2 -s tests/$(suite) ; \
+				--cover-branches --verbosity=2 -s tests/$(suite) 1>/dev/null; \
 	fi
 
 install_deps:
