@@ -7,4 +7,5 @@ class Application(object):
         super(Application, self).__init__()
         self.name = properties['name']
         self.app_id = properties['id']
-        self.url = properties['overview-url']
+        self.overview_url = properties['overview-url']
+        self.servers_url = properties['servers-url']

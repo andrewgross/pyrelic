@@ -23,6 +23,7 @@ __all__ = (
     'NewRelicUnknownApplicationException',
     'NewRelicInvalidParameterException',
     'Client',
+    'BaseClient'
     'Application',
     'Metric',
     'Threshold'

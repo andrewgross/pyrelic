@@ -1,8 +1,5 @@
-import requests
-import logging
 import datetime
 
-from time import sleep
 from lxml import etree
 
 from .exceptions import (
@@ -116,6 +113,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         """
         Requires: account ID (taken from Client object)
         Returns: a list of Application objects
+        Endpoint: rpm.newrelic.com
         Errors: 403 Invalid API Key
         Method: Get
         """
