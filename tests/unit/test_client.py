@@ -15,7 +15,9 @@ from pyrelic import (Client,
 from ..fixtures.sample_responses import (METRIC_DATA_SAMPLE,
                                          METRIC_NAMES_SAMPLE,
                                          VIEW_APPLICATIONS_SAMPLE,
-                                         THRESHOLD_VALUES_SAMPLE
+                                         THRESHOLD_VALUES_SAMPLE,
+                                         DELETE_SUCCESS_SAMPLE,
+                                         DELETE_FAILURE_SAMPLE
                                          )
 
 NEW_RELIC_REGEX = re.compile(".*.newrelic.com/.*")
@@ -186,3 +188,18 @@ def test_get_threshold_values():
     result = c.get_threshold_values("foo")
     result.should.be.a('list')
     result[0].should.be.a('pyrelic.Threshold')
+
+
+# @httpretty.activate
+# def test_delete_applications():
+#     httpretty.register_uri(httpretty.POST,
+#                            NEW_RELIC_REGEX,
+#                            body=DELETE_SUCCESS_SAMPLE,
+#                            status=200
+#                            )
+#     # When I make an API request to view threshold values
+#     c = Client(account_id="1", api_key="2")
+
+#     # Then I should receive an array of Threshold values
+#     result = c.delete_applications({"app_id": "1234"})
+#     result.should.be.empty

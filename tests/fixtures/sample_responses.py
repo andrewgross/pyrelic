@@ -80,3 +80,21 @@ THRESHOLD_VALUES_SAMPLE = """
   <threshold_value name="DB" begin_time="Fri Dec 12 01:22:00 +0000 2008" end_time="Fri Dec 12 01:27:00 +0000 2008" formatted_metric_value="46.82 %" threshold_value="1" metric_value="46.82"/>
 </threshold-values>
 """
+
+DELETE_SUCCESS_SAMPLE = """
+<?xml version="1.0" encoding="UTF-8"?>
+<servers type="array">
+  <server name="My Server" id="123456">
+    <result>deleted</result>
+  </server>
+<server>
+"""
+
+DELETE_FAILURE_SAMPLE = """
+<?xml version="1.0" encoding="UTF-8"?>
+<servers type="array">
+  <server name="My Server" id="123456">
+    <result>failed</result>
+  </server>
+<server>
+"""

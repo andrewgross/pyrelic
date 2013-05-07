@@ -164,15 +164,13 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
                             formatted_metric_value,
                             threshold_value)
         """
-        pass
+        raise NotImplemented
 
     def get_dashboard_html_fragment(self):
-        # TODO: Dashboard HTML fragments
-        pass
+        raise NotImplemented
 
     def notify_deployment(self):
-        # TODO: Deployment Notification
-        pass
+        raise NotImplemented
 
     def get_metric_names(self, agent_id, re=None, limit=5000):
         """
@@ -286,7 +284,11 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
                  about its start/end time, metric name, metric value, and the
                  current threshold
         """
-        uri = "https://rpm.newrelic.com/accounts/{0}/applications/{1}/threshold_values.xml".format(self.account_id, application_id)
+        endpoint = "https://rpm.newrelic.com"
+        uri = "{endpoint}/accounts/{account_id}/applications/{app_id}/threshold_values.xml"\
+              .format(endpoint=endpoint,
+                      account_id=self.account_id,
+                      app_id=application_id)
         response = self._make_get_request(uri)
         thresholds = []
 
