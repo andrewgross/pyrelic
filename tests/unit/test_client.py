@@ -14,7 +14,8 @@ from pyrelic import (Client,
 
 from ..fixtures.sample_responses import (METRIC_DATA_SAMPLE,
                                          METRIC_NAMES_SAMPLE,
-                                         VIEW_APPLICATIONS_SAMPLE
+                                         VIEW_APPLICATIONS_SAMPLE,
+                                         THRESHOLD_VALUES_SAMPLE
                                          )
 
 NEW_RELIC_REGEX = re.compile(".*.newrelic.com/.*")
@@ -162,12 +163,26 @@ def test_get_metric_data():
                            body=METRIC_DATA_SAMPLE,
                            status=200
                            )
-    # When I make an API request to view applications
+    # When I make an API request to get metric data
     c = Client(account_id="1", api_key="2")
 
-    # Then I should receive an array of Applications
+    # Then I should receive an array of Metrics
     result = c.get_metric_data("foo", "bar", "baz", "foobar", "foobaz")
     result.should.be.a('list')
     result[0].should.be.a('pyrelic.Metric')
 
 
+@httpretty.activate
+def test_get_threshold_values():
+    httpretty.register_uri(httpretty.GET,
+                           NEW_RELIC_REGEX,
+                           body=THRESHOLD_VALUES_SAMPLE,
+                           status=200
+                           )
+    # When I make an API request to view threshold values
+    c = Client(account_id="1", api_key="2")
+
+    # Then I should receive an array of Threshold values
+    result = c.get_threshold_values("foo")
+    result.should.be.a('list')
+    result[0].should.be.a('pyrelic.Threshold')
