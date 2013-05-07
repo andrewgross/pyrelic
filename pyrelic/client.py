@@ -70,20 +70,23 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         tree = etree.XML(response, parser)
         return tree
 
-    def _handle_api_error(self, status_code, error_message):
+    def _handle_api_error(self, error):
         """
         New Relic cheerfully provides expected API error codes depending on your
         API call deficiencies so we convert these to exceptions and raise them
         for the user to handle as they see fit.
         """
+        status_code = error.response.status_code
+        message = error.message
+
         if 403 == status_code:
-            raise NewRelicInvalidApiKeyException(error_message)
+            raise NewRelicInvalidApiKeyException(message)
         elif 404 == status_code:
-            raise NewRelicUnknownApplicationException(error_message)
+            raise NewRelicUnknownApplicationException(message)
         elif 422 == status_code:
-            raise NewRelicInvalidParameterException(error_message)
+            raise NewRelicInvalidParameterException(message)
         else:
-            raise NewRelicApiException(error_message)
+            raise NewRelicApiException(message)
 
     def _api_rate_limit_exceeded(self, api_call, window=60):
         """

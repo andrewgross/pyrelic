@@ -1,9 +1,6 @@
-import re
-import httpretty
-import requests
 import datetime
 
-from nose.tools import nottest
+from mock import Mock
 
 from pyrelic import (Client,
                      NewRelicCredentialException,
@@ -11,8 +8,6 @@ from pyrelic import (Client,
                      NewRelicInvalidApiKeyException,
                      NewRelicUnknownApplicationException,
                      NewRelicInvalidParameterException)
-
-NEW_RELIC_URI_REGEX = re.compile(".*.newrelic.com/.*")
 
 
 # Client Initialization
@@ -36,36 +31,44 @@ def test_client_api_key():
 def test_handle_api_error_400():
     # When I make an API request and receive a 400
     c = Client(account_id="foo", api_key="bar")
+    response = Mock(status_code=400)
+    error = Mock(message="foo", response=response)
 
     # Then I should raise a NewRelicApiException
-    c._handle_api_error.when.called_with(400, "foobar")\
+    c._handle_api_error.when.called_with(error)\
         .should.throw(NewRelicApiException)
 
 
 def test_handle_api_error_403():
     # When I make an API request and receive a 400
     c = Client(account_id="foo", api_key="bar")
+    response = Mock(status_code=403)
+    error = Mock(message="foo", response=response)
 
     # Then I should raise a NewRelicApiException
-    c._handle_api_error.when.called_with(403, "foobar")\
+    c._handle_api_error.when.called_with(error)\
         .should.throw(NewRelicInvalidApiKeyException)
 
 
 def test_handle_api_error_404():
     # When I make an API request and receive a 400
     c = Client(account_id="foo", api_key="bar")
+    response = Mock(status_code=404)
+    error = Mock(message="foo", response=response)
 
     # Then I should raise a NewRelicApiException
-    c._handle_api_error.when.called_with(404, "foobar")\
+    c._handle_api_error.when.called_with(error)\
         .should.throw(NewRelicUnknownApplicationException)
 
 
 def test_handle_api_error_422():
     # When I make an API request and receive a 400
     c = Client(account_id="foo", api_key="bar")
+    response = Mock(status_code=422)
+    error = Mock(message="foo", response=response)
 
     # Then I should raise a NewRelicApiException
-    c._handle_api_error.when.called_with(422, "foobar")\
+    c._handle_api_error.when.called_with(error)\
         .should.throw(NewRelicInvalidParameterException)
 
 
