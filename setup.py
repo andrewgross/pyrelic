@@ -7,7 +7,8 @@ from setuptools import setup, find_packages
 
 
 def parse_requirements():
-    """Rudimentary parser for the `requirements.txt` file
+    """
+    Rudimentary parser for the `requirements.txt` file
 
     We just want to separate regular packages from links to pass them to the
     `install_requires` and `dependency_links` params of the `setup()`
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     setup(
         name="pyrelic",
         license="GPL",
-        version='1.0.0',
+        version='0.4.0',
         description=u'Python API Wrapper for NewRelic API',
         long_description=open('README.md').read(),
         author=u'Andrew Gross',

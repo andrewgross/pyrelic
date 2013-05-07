@@ -2,7 +2,7 @@ import re
 import httpretty
 import requests
 import datetime
-import time
+
 from nose.tools import nottest
 
 from pyrelic import (Client,
