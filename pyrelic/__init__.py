@@ -10,6 +10,7 @@ from .exceptions import (
     NewRelicInvalidParameterException,
     NewRelicUnknownApplicationException
 )
+from .base_client import BaseClient
 from .client import Client
 from .application import Application
 from .metric import Metric

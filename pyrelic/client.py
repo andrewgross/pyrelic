@@ -5,8 +5,6 @@ import datetime
 from time import sleep
 from lxml import etree
 
-logger = logging.getLogger(__name__)
-
 from .exceptions import (
     NewRelicApiRateLimitException,
     NewRelicApiException,
@@ -16,11 +14,12 @@ from .exceptions import (
     NewRelicUnknownApplicationException
 )
 from .application import Application
+from .base_client import BaseClient
 from .metric import Metric
 from .threshold import Threshold
 
 
-class Client(object):
+class Client(BaseClient):
     """
     A Client for interacting with New Relic resources
     """
@@ -36,6 +35,11 @@ class Client(object):
         Required Parameters: account_id, api_key
         Optional Parameters: proxy, retries, retry_delay, timeout, debug
         """
+        super(Client, self).__init__(proxy=proxy,
+                                     retries=retries,
+                                     retry_delay=retry_delay,
+                                     timeout=timeout)
+
         if not account_id or not api_key:
             raise NewRelicCredentialException("""
 Pyrelic could not find your account credentials. Pass them into the
@@ -47,63 +51,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         self.account_id = account_id
         self.api_key = api_key
         self.headers = {'x-api-key': api_key}
-        self.retries = retries
-        self.retry_delay = retry_delay
-        self.timeout = timeout
-
-        self.proxy = proxy
-        if type(proxy) is 'str' and ':' in proxy:
-            self.proxy = {"http": proxy,
-                          "https": proxy,
-                          }
-        elif type(proxy) is 'dict':
-            self.proxy = proxy
-
-    def _make_request(self, request, uri, **kwargs):
-        """
-        This is final step of calling out to the remote API.  We set up our
-        headers, proxy, debugging etc. The only things in **kwargs are
-        parameters that are overridden on an API method basis (like timeout)
-
-        We have a simple attempt/while loop to implement retries w/ delays to
-        avoid the brittleness of talking over the network to remote services.
-        These settings can be overridden when creating the Client.
-
-        We catch the 'requests' exceptions during our retries and eventually
-        raise our own NewRelicApiException if we are unsuccessful in contacting
-        the New Relic API. Additionally we process any non 200 HTTP Errors
-        and raise an appropriate exception according to the New Relic API
-        documentation.
-
-        Finally we pass back the response text to our XML parser since we have
-        no business parsing that here. It could be argued that handling API
-        exceptions/errors shouldn't belong in this method but it is simple
-        enough for now.
-        """
-        attempts = 1
-        response = None
-        while attempts <= self.retries:
-            try:
-                response = request(uri,
-                                   headers=self.headers,
-                                   proxies=self.proxy,
-                                   **kwargs)
-
-            except (requests.ConnectionError, requests.HTTPError) as ce:
-                logger.error('Error connecting to New Relic API: {}'.format(ce))
-                sleep(self.retry_delay)
-                attempts += 1
-            else:
-                break
-        if not response and attempts > 1:
-            raise NewRelicApiException(
-                'Unable to connect to the NewRelic API after {} attempts'
-                .format(attempts))
-        if not response:
-            raise NewRelicApiException('No response received from NewRelic API')
-        if not str(response.status_code).startswith('2'):
-            self._handle_api_error(response.status_code)
-        return self._parse_xml(response.text)
+        self._parser = self._parse_xml
 
     def _parse_xml(self, response):
         """
@@ -136,30 +84,6 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
             raise NewRelicInvalidParameterException(error_message)
         else:
             raise NewRelicApiException(error_message)
-
-    def _make_get_request(self, uri, parameters=None, timeout=None):
-        """
-        Given a request add in the required parameters and return the parsed
-        XML object.
-        """
-        if not timeout:
-            timeout = self.timeout
-        return self._make_request(requests.get,
-                                  uri,
-                                  params=parameters,
-                                  timeout=timeout)
-
-    def _make_post_request(self, uri, payload, timeout=None):
-        """
-        Given a request add in the required parameters and return the parsed
-        XML object.
-        """
-        if not timeout:
-            timeout = self.timeout
-        return self._make_request(requests.post,
-                                  uri,
-                                  payload,
-                                  timeout=timeout)
 
     def _api_rate_limit_exceeded(self, api_call, window=60):
         """

@@ -7,4 +7,3 @@ def test_api_rate_limit_message():
 
     # It should have a timeout field with the remaining wait time
     e.timeout.should.be("60")
-

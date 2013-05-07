@@ -32,7 +32,7 @@ run_test:
 		echo "Running \033[0;32m$(suite)\033[0m test suite"; \
 		make clean && \
 			nosetests --stop --with-coverage --cover-package=$(PACKAGE) \
-				--cover-branches --verbosity=2 -s tests/$(suite) 1>/dev/null; \
+				--cover-branches --verbosity=2 -s tests/$(suite); \
 	fi
 
 install_deps:

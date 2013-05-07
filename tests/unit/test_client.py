@@ -32,53 +32,6 @@ def test_client_api_key():
         .should.throw(NewRelicCredentialException)
 
 
-def test_client_proxy_string():
-    # When I create a client with a proxy as a string
-    proxy = "baz:1234"
-    c = Client(account_id="foo", api_key="bar", proxy=proxy)
-
-    # Then the Client should create the proxy config as a dictionary
-    c.proxy.should.be({"http": proxy, "https": proxy})
-
-
-def test_client_proxy_dict():
-    # When I create a client with a proxy as a string
-    proxy = {"baz": "1234"}
-    c = Client(account_id="foo", api_key="bar", proxy=proxy)
-
-    # Then the Client should create the proxy config as a dictionary
-    c.proxy.should.be(proxy)
-
-
-# _make_request Tests
-@nottest  # Skip until we can properly simulate timeouts
-@httpretty.activate
-def test_make_request_timeout():
-    httpretty.register_uri(httpretty.GET, NEW_RELIC_URI_REGEX,
-                           body=None,
-                           )
-    # When I make an API request and receive no response
-    c = Client(account_id="foo", api_key="bar")
-
-    # Then I should raise a NewRelicApiException
-    c._make_request.when.called_with(requests.get, "http://rpm.newrelic.com", timeout=0.05, retries=1)\
-        .should.throw(NewRelicApiException)
-
-
-@httpretty.activate
-def test_make_request_non_200():
-    httpretty.register_uri(httpretty.GET, NEW_RELIC_URI_REGEX,
-                           body=None,
-                           status=400
-                           )
-    # When I make an API request and receive a 400
-    c = Client(account_id="foo", api_key="bar")
-
-    # Then I should raise a NewRelicApiException
-    c._make_request.when.called_with(requests.get, "http://rpm.newrelic.com")\
-        .should.throw(NewRelicApiException)
-
-
 # Handle API Error
 def test_handle_api_error_400():
     # When I make an API request and receive a 400
