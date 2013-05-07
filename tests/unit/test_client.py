@@ -12,6 +12,9 @@ from pyrelic import (Client,
                      NewRelicInvalidParameterException)
 
 
+NEW_RELIC_REGEX = re.compile(".*.newrelic.com/.*")
+
+
 # Client Initialization
 def test_client_account_id():
     # When I create a client without a client id
@@ -133,7 +136,7 @@ VIEW_APPLICATIONS_SAMPLE = """
 
 @httpretty.activate
 def test_view_applications():
-    httpretty.register_uri(httpretty.GET, re.compile("rpm.newrelic.com/.*"),
+    httpretty.register_uri(httpretty.GET, NEW_RELIC_REGEX,
                            body=VIEW_APPLICATIONS_SAMPLE,
                            status=200
                            )
@@ -144,3 +147,53 @@ def test_view_applications():
     # Then I should receive an array of Applications
     c.view_applications().should.be.an('list')
     c.view_applications()[0].should.be.an('pyrelic.Application')
+
+
+METRIC_NAMES_SAMPLE = """
+<?xml version="1.0" encoding="UTF-8"?>
+<metrics type="array">
+  <metric name="WebTransaction">
+    <fields type="array">
+      <field name="average_call_time"/>
+      <field name="average_response_time"/>
+      <field name="call_count"/>
+      <field name="max_call_time"/>
+      <field name="min_call_time"/>
+      <field name="requests_per_minute"/>
+      <field name="throughput"/>
+      <field name="total_call_time"/>
+    </fields>
+  </metric>
+  <metric name="WebTransaction/RPMCollector/AgentListener/connect">
+    <fields type="array">
+      <field name="average_call_time"/>
+      <field name="average_response_time"/>
+      <field name="call_count"/>
+      <field name="max_call_time"/>
+      <field name="min_call_time"/>
+      <field name="requests_per_minute"/>
+      <field name="throughput"/>
+      <field name="total_call_time"/>
+    </fields>
+  </metric>
+</metrics>
+"""
+
+
+@httpretty.activate
+def test_get_metric_names():
+    httpretty.register_uri(httpretty.GET,
+                           NEW_RELIC_REGEX,
+                           body=METRIC_NAMES_SAMPLE,
+                           status=200
+                           )
+
+    # When I make an API request to view applications
+    c = Client(account_id="1", api_key="2")
+
+    # Then I should receive an array of Applications
+    result = c.get_metric_names("foo")
+    result.should.be.a('dict')
+    result.should.have.key('WebTransaction')
+    result['WebTransaction'].should.be.a('list')
+    result['WebTransaction'].should.have.length_of(8)

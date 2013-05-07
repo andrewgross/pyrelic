@@ -117,7 +117,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         Errors: 403 Invalid API Key
         Method: Get
         """
-        uri = "https://rpm.newrelic.com/accounts/{0}/applications.xml".format(self.account_id)
+        endpoint = "https://rpm.newrelic.com"
+        uri = "{endpoint}/accounts/{id}/applications.xml"\
+              .format(endpoint=endpoint, id=self.account_id)
         response = self._make_get_request(uri)
         applications = []
 
@@ -176,7 +178,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         # TODO: Deployment Notification
         pass
 
-    def get_metric_names(self, app_id, re=None, limit=5000):
+    def get_metric_names(self, agent_id, re=None, limit=5000):
         """
         Requires: application ID
         Optional: Regex to filter metric names, limit of results
@@ -195,7 +197,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         # Construct our GET request parameters into a nice dictionary
         parameters = {'re': re, 'limit': limit}
 
-        uri = "https://api.newrelic.com/api/v1/applications/{0}/metrics.xml".format(str(app_id))
+        endpoint = "https://api.newrelic.com"
+        uri = "{endpoint}/api/v1/applications/{agent_id}/metrics.xml"\
+              .format(endpoint=endpoint, agent_id=agent_id)
 
         # A longer timeout is needed due to the amount of
         # data that can be returned without a regex search
