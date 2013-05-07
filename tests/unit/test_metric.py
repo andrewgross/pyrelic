@@ -6,13 +6,11 @@ from pyrelic import Metric
 def test_metric_initialization():
     fake_items = [("foo", "bar"), ("foobar", "baz")]
 
-    fake_xpath = Mock()
-    fake_xpath.text = MagicMock(return_value="xpath_text")
-    fake_xpath.values = MagicMock(return_value=["xpath_values"])
+    fake_xpath = Mock(attrib={"name": "xpath_values"}, text="xpath_text")
 
     metric_mock = Mock()
     metric_mock.items = MagicMock(return_value=fake_items)
-    metric_mock.xpath = MagicMock(return_value=[fake_xpath])
+    metric_mock.findall = MagicMock(return_value=[fake_xpath])
 
     # When I create a metric with xpath
     m = Metric(metric_mock)

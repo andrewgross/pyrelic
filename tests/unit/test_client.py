@@ -7,10 +7,15 @@ from mock import Mock
 from pyrelic import (Client,
                      NewRelicCredentialException,
                      NewRelicApiException,
+                     NewRelicApiRateLimitException,
                      NewRelicInvalidApiKeyException,
                      NewRelicUnknownApplicationException,
                      NewRelicInvalidParameterException)
 
+from ..fixtures.sample_responses import (METRIC_DATA_SAMPLE,
+                                         METRIC_NAMES_SAMPLE,
+                                         VIEW_APPLICATIONS_SAMPLE
+                                         )
 
 NEW_RELIC_REGEX = re.compile(".*.newrelic.com/.*")
 
@@ -112,26 +117,8 @@ def test_api_rate_limit_exceeded_inside_window():
     c.foobar_window = datetime.datetime.now() - datetime.timedelta(seconds=59)
 
     # Then I should receive a wait time
-    c._api_rate_limit_exceeded(foobar, window=60).should.equal(1)
-
-
-VIEW_APPLICATIONS_SAMPLE = """
-<?xml version="1.0" encoding="UTF-8"?>
-<applications type="array">
-  <application>
-    <id type="integer">123</id>
-    <name>My Application</name>
-    <overview-url>https://rpm.newrelic.com/accounts/1/applications/123</overview-url>
-    <servers-url>https://api.newrelic.com/api/v1/accounts/1/applications/123/servers</servers-url>
-  </application>
-  <application>
-    <id type="integer">124</id>
-    <name>My Application2</name>
-    <overview-url>https://rpm.newrelic.com/accounts/1/applications/124</overview-url>
-    <servers-url>https://api.newrelic.com/api/v1/accounts/1/applications/123/servers</servers-url>
-  </application>
-</applications>
-"""
+    c._api_rate_limit_exceeded.when.called_with(foobar, window=60)\
+        .should.throw(NewRelicApiRateLimitException)
 
 
 @httpretty.activate
@@ -147,37 +134,6 @@ def test_view_applications():
     # Then I should receive an array of Applications
     c.view_applications().should.be.an('list')
     c.view_applications()[0].should.be.an('pyrelic.Application')
-
-
-METRIC_NAMES_SAMPLE = """
-<?xml version="1.0" encoding="UTF-8"?>
-<metrics type="array">
-  <metric name="WebTransaction">
-    <fields type="array">
-      <field name="average_call_time"/>
-      <field name="average_response_time"/>
-      <field name="call_count"/>
-      <field name="max_call_time"/>
-      <field name="min_call_time"/>
-      <field name="requests_per_minute"/>
-      <field name="throughput"/>
-      <field name="total_call_time"/>
-    </fields>
-  </metric>
-  <metric name="WebTransaction/RPMCollector/AgentListener/connect">
-    <fields type="array">
-      <field name="average_call_time"/>
-      <field name="average_response_time"/>
-      <field name="call_count"/>
-      <field name="max_call_time"/>
-      <field name="min_call_time"/>
-      <field name="requests_per_minute"/>
-      <field name="throughput"/>
-      <field name="total_call_time"/>
-    </fields>
-  </metric>
-</metrics>
-"""
 
 
 @httpretty.activate
@@ -197,3 +153,21 @@ def test_get_metric_names():
     result.should.have.key('WebTransaction')
     result['WebTransaction'].should.be.a('list')
     result['WebTransaction'].should.have.length_of(8)
+
+
+@httpretty.activate
+def test_get_metric_data():
+    httpretty.register_uri(httpretty.GET,
+                           NEW_RELIC_REGEX,
+                           body=METRIC_DATA_SAMPLE,
+                           status=200
+                           )
+    # When I make an API request to view applications
+    c = Client(account_id="1", api_key="2")
+
+    # Then I should receive an array of Applications
+    result = c.get_metric_data("foo", "bar", "baz", "foobar", "foobaz")
+    result.should.be.a('list')
+    result[0].should.be.a('pyrelic.Metric')
+
+

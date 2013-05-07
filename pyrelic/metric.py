@@ -8,8 +8,8 @@ class Metric(object):
         super(Metric, self).__init__()
         for k, v in metric.items():
             setattr(self, k, v)
-        for field in metric.xpath('field'):
+        for field in metric.findall('.//field'):
             # Each field has a 'name=metric_type' section.
             # We want to have this accessible in the object by calling the
             # metric_type property of the object directly
-            setattr(self, field.values()[0], field.text)
+            setattr(self, field.attrib['name'], field.text)

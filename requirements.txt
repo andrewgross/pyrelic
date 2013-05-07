@@ -1,2 +1,2 @@
-lxml
+elementtree==1.2.7-20070827-preview
 requests==1.2.0

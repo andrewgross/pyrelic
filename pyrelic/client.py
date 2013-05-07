@@ -1,6 +1,6 @@
 import datetime
 
-from lxml import etree
+from elementtree import ElementTree as etree
 
 from .exceptions import (
     NewRelicApiRateLimitException,
@@ -58,13 +58,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         used by the calling API method and massaged into a more appropriate
         format.
         """
-        parser = etree.XMLParser(remove_blank_text=True,
-                                 strip_cdata=False,
-                                 ns_clean=True,
-                                 recover=True)
-        if response.startswith('<?xml version="1.0" encoding="UTF-8"?>'):
-            response = '\n'.join(response.split('\n')[1:])
-        tree = etree.XML(response, parser)
+        if response.startswith('\n'):
+            response = response[1:]
+        tree = etree.fromstring(response)
         return tree
 
     def _handle_api_error(self, error):
@@ -105,9 +101,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
 
         if current - previous > datetime.timedelta(seconds=window):
             setattr(self, api_call.__name__ + "_window", current)
-            return False
         else:
-            return window - (current - previous).seconds
+            timeout = window - (current - previous).seconds
+            raise NewRelicApiRateLimitException(str(timeout))
 
     def view_applications(self):
         """
@@ -123,7 +119,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         response = self._make_get_request(uri)
         applications = []
 
-        for application in response.xpath('/applications/application'):
+        for application in response.findall('.//application'):
             application_properties = {}
             for field in application:
                 application_properties[field.tag] = field.text
@@ -144,8 +140,8 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         response = self._make_post_request(uri, payload)
         failed_deletions = {}
 
-        for application in response.xpath('/applications/application'):
-            if not 'deleted' in application.xpath('result').text:
+        for application in response.findall('.//application'):
+            if not 'deleted' in application.findall('.//result').text:
                 failed_deletions['app_id'] = application.id
 
         return failed_deletions
@@ -191,8 +187,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         Endpoint: api.newrelic.com
         """
         # Make sure we play it slow
-        if self._api_rate_limit_exceeded(self.get_metric_data):
-            raise NewRelicApiRateLimitException(str(self._api_rate_limit_exceeded(self.get_metric_data)))
+        self._api_rate_limit_exceeded(self.get_metric_names)
 
         # Construct our GET request parameters into a nice dictionary
         parameters = {'re': re, 'limit': limit}
@@ -211,9 +206,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         # since the attributes in each type of metric object are different
         # (and we aren't going to make heavyweight objects) we don't want to.
         metrics = {}
-        for metric in response.xpath('/metrics/metric'):
+        for metric in response.findall('.//metric'):
             fields = []
-            for field in metric.xpath('fields/field'):
+            for field in metric.findall('.//field'):
                 fields.append(field.get('name'))
             metrics[metric.get('name')] = fields
         return metrics
@@ -239,8 +234,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         #       of the metrics returned by the New Relic API.
 
         # Make sure we aren't going to hit an API timeout
-        if self._api_rate_limit_exceeded(self.get_metric_data):
-            raise NewRelicApiRateLimitException(str(self._api_rate_limit_exceeded(self.get_metric_data)))
+        self._api_rate_limit_exceeded(self.get_metric_data)
 
         # Just in case the API needs parameters to be in order
         parameters = {}
@@ -277,7 +271,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         # The dividing factor is the time period covered by the metric,
         # there should be no overlaps in time.
         metrics = []
-        for metric in response.xpath('/metrics/metric'):
+        for metric in response.findall('.//metric'):
             metrics.append(Metric(metric))
         return metrics
 
@@ -296,7 +290,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         response = self._make_get_request(uri)
         thresholds = []
 
-        for threshold_value in response.xpath('/threshold-values/threshold_value'):
+        for threshold_value in response.findall('.//threshold_value'):
             properties = {}
             # a little ugly, but the output works fine.
             for tag, text in threshold_value.items():
