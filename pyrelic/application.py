@@ -1,6 +1,7 @@
 class Application(object):
     """
-    A simple dumb object for easily containing the data returned from a "view_applications" call
+    A simple dumb object for easily containing the data returned from a
+    "view_applications" call
     """
     def __init__(self, properties):
         super(Application, self).__init__()

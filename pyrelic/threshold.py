@@ -1,6 +1,7 @@
 class Threshold(object):
     """
-    A simple dumb object for easily containing the data returned from a "threshold_values" call
+    A simple dumb object for easily containing the data returned from a
+    "threshold_values" call
     """
     def __init__(self, properties):
         super(Threshold, self).__init__()
