@@ -1,6 +1,6 @@
 import datetime
 
-from elementtree import ElementTree as etree
+from pyrelic.packages.elementtree import ElementTree as etree
 
 from .exceptions import (
     NewRelicApiRateLimitException,
