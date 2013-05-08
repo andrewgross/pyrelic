@@ -1,2 +1,0 @@
-lxml
-requests==0.14.2
