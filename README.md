@@ -59,19 +59,17 @@ if len(failed_deletions) is 0:
     print "All applications deleted succesfully!"
 ```
 
-# License
 
-"THE BEER-WARE LICENSE" (Revision 42):
-<andrew.w.gross@gmail.com> wrote this file. As long as you retain his notice you can do whatever you want with this stuff. If we meet some day, and you think this stuff is worth it, you can buy me a beer in return. (Original from Poul-Henning Kamp)
+# How to contribute
 
-# Future Development
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Run the tests before making any changes (`make unit`)
+4. Commit your changes (`git commit -am 'Add some feature'`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create new Pull Request
 
-Sometime soon I hope to finish implementing the last few TODO's including HTML snippets, application summary metrics and deployment notifications.  Ideally this project can be taken over and maintained by New Relic since it is obvious that they would be best to maintain their own API clients.
 
-# Shout Outs
+# Contributors
 
-A special thanks to [Mingwei Gu](https://github.com/Mingweigu) for working with me to get the first version of this working as we wrapped our head around parsing the response XML.
-
-Thanks to [Yipit](https://github.com/Yipit) for letting me divert time to this project so I could clean it up and open source it.
-
-Thanks to [Gabriel Falcão](https://github.com/gabrielfalcao) for helping me add this to pypi.
+[Ryan Gooler](https://github.com/jippen)
