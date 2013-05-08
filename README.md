@@ -3,18 +3,14 @@
 
 A NewRelic Client library written in python (since not all of us use ruby).
 
-The documentation for this library is included in the appropriate '__doc__' strings but it was derived by examining the New Relic Ruby API located at:
-
-<https://github.com/newrelic/newrelic_api>
+The documentation for this library is included in the appropriate `__doc__` strings but it was derived by examining the [New Relic Ruby API](https://github.com/newrelic/newrelic_api).
 
 Unfortunately, while the documentation for their API is very solid, the implementation details are pretty sparse since they are centered around the Rails Active Resource helper library.  This made it a bit trickier to reproduce the API in python but it seems to have worked out so far (with some querks).
 
 # Installation
-
 ```bash
-pip install pyrelic
+$ pip install pyrelic
 ```
-
 # Examples
 
 ```python
