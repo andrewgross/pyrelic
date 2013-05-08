@@ -81,20 +81,14 @@ THRESHOLD_VALUES_SAMPLE = """
 </threshold-values>
 """
 
-DELETE_SUCCESS_SAMPLE = """
+DELETE_APPLICATION_SUCCESS_SAMPLE = """
 <?xml version="1.0" encoding="UTF-8"?>
-<servers type="array">
-  <server name="My Server" id="123456">
+<applications type="array">
+  <application name="MyApp" id="1234">
     <result>deleted</result>
-  </server>
-<server>
-"""
-
-DELETE_FAILURE_SAMPLE = """
-<?xml version="1.0" encoding="UTF-8"?>
-<servers type="array">
-  <server name="My Server" id="123456">
+  </application>
+  <application name="MyApp 2" id="2345">
     <result>failed</result>
-  </server>
-<server>
+  </application>
+</applications>
 """

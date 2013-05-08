@@ -97,7 +97,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
             # handle not having set it yet.
             previous.__str__
         except AttributeError:
-            previous = datetime.datetime.now() - datetime.timedelta(seconds=window+1)
+            now = datetime.datetime.now()
+            outside_window = datetime.timedelta(seconds=window+1)
+            previous = now - outside_window
 
         if current - previous > datetime.timedelta(seconds=window):
             setattr(self, api_call.__name__ + "_window", current)
@@ -135,14 +137,16 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         Errors: None Explicit, failed deletions will be in XML
         Method: Post
         """
-        uri = "https://api.newrelic.com/api/v1/accounts/{0}/applications/delete.xml".format(self.account_id)
+        endpoint = "https://api.newrelic.com"
+        uri = "{endpoint}/api/v1/accounts/{account_id}/applications/delete.xml"\
+              .format(endpoint=endpoint, account_id=self.account_id)
         payload = applications
         response = self._make_post_request(uri, payload)
         failed_deletions = {}
 
         for application in response.findall('.//application'):
-            if not 'deleted' in application.findall('.//result').text:
-                failed_deletions['app_id'] = application.id
+            if not 'deleted' in application.findall('.//result')[0].text:
+                failed_deletions['app_id'] = application.get('id')
 
         return failed_deletions
 
@@ -196,7 +200,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
 
         # A longer timeout is needed due to the amount of
         # data that can be returned without a regex search
-        response = self._make_get_request(uri, parameters=parameters, timeout=5.000)
+        response = self._make_get_request(uri,
+                                          parameters=parameters,
+                                          timeout=5.000)
 
         # Parse the response. It seems clearer to return a dict of
         # metrics/fields instead of a list of metric objects. It might be more
@@ -211,7 +217,13 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
             metrics[metric.get('name')] = fields
         return metrics
 
-    def get_metric_data(self, applications, metrics, field, begin, end, summary=False):
+    def get_metric_data(self,
+                        applications,
+                        metrics,
+                        field,
+                        begin,
+                        end,
+                        summary=False):
         """
         Requires: account ID,
                   list of application IDs,
@@ -258,7 +270,9 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         parameters['end'] = end
         parameters['summary'] = int(summary)
 
-        uri = "https://api.newrelic.com/api/v1/accounts/{0}/metrics/data.xml".format(str(self.account_id))
+        endpoint = "https://api.newrelic.com"
+        uri = "{endpoint}/api/v1/accounts/{account_id}/metrics/data.xml"\
+              .format(endpoint=endpoint, account_id=self.account_id)
         # A longer timeout is needed due to the
         # amount of data that can be returned
         response = self._make_get_request(uri,
@@ -285,10 +299,12 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
                  current threshold
         """
         endpoint = "https://rpm.newrelic.com"
-        uri = "{endpoint}/accounts/{account_id}/applications/{app_id}/threshold_values.xml"\
+        remote_file = "threshold_values.xml"
+        uri = "{endpoint}/accounts/{account_id}/applications/{app_id}/{xml}"\
               .format(endpoint=endpoint,
                       account_id=self.account_id,
-                      app_id=application_id)
+                      app_id=application_id,
+                      xml=remote_file)
         response = self._make_get_request(uri)
         thresholds = []
 

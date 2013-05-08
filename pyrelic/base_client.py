@@ -26,7 +26,7 @@ class BaseClient(object):
         """
         Made to be overridden
         """
-        pass
+        raise NotImplemented
 
     def _handle_api_error(self, error):
         """
@@ -111,5 +111,5 @@ class BaseClient(object):
             timeout = self.timeout
         return self._make_request(requests.post,
                                   uri,
-                                  payload,
+                                  data=payload,
                                   timeout=timeout)
