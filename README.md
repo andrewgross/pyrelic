@@ -7,11 +7,12 @@ The documentation for this library is included in the appropriate `__doc__` stri
 
 Unfortunately, while the documentation for their API is very solid, the implementation details are pretty sparse since they are centered around the Rails Active Resource helper library.  This made it a bit trickier to reproduce the API in python but it seems to have worked out so far (with some querks).
 
-# Installation
+## Installation
 ```bash
 $ pip install pyrelic
 ```
-# Examples
+
+## Examples
 
 ```python
 from pyrelic import Client
@@ -60,7 +61,7 @@ if len(failed_deletions) is 0:
 ```
 
 
-# How to contribute
+## How to contribute
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
@@ -70,6 +71,6 @@ if len(failed_deletions) is 0:
 6. Create new Pull Request
 
 
-# Contributors
+## Contributors
 
 [Ryan Gooler](https://github.com/jippen)
