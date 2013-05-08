@@ -1,8 +1,5 @@
-# Installation
+# Pyrelic [![Build Status](https://travis-ci.org/andrewgross/pyrelic.png)](https://travis-ci.org/andrewgross/pyrelic)
 
-pip install pyrelic
-
-# Introduction
 
 A NewRelic Client library written in python (since not all of us use ruby).
 
@@ -11,6 +8,12 @@ The documentation for this library is included in the appropriate '__doc__' stri
 <https://github.com/newrelic/newrelic_api>
 
 Unfortunately, while the documentation for their API is very solid, the implementation details are pretty sparse since they are centered around the Rails Active Resource helper library.  This made it a bit trickier to reproduce the API in python but it seems to have worked out so far (with some querks).
+
+# Installation
+
+```bash
+pip install pyrelic
+```
 
 # Examples
 
@@ -28,7 +31,7 @@ for metric in metrics:
         print "Average Select Time: %s" % metric.average_value
     if metric.name contains "update":
         print "Average Update Time: %s" % metric.average_value
-    
+
 # Careful of API timeouts!
 try:
     metrics = c.get_metric_data(['My Application'], ['Database/my_table/select', 'Database/my_table/update'], ['average_value'], '2012-03-28T15:48:00Z', '2012-03-29T15:48:00Z')
@@ -52,7 +55,7 @@ for application in applications:
 
 # Delete your application
 failed_deletions = c.delete_applications( {
-                                           'app_id': 1234, 
+                                           'app_id': 1234,
                                            'app': 'My Application'
                                           })
 
