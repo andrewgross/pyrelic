@@ -41,6 +41,10 @@ local_file = lambda f: \
 
 if __name__ == '__main__':
 
+    packages = find_packages(exclude=['*tests*'])
+
+    print packages
+
     setup(
         name="pyrelic",
         license="GPL",
@@ -48,8 +52,10 @@ if __name__ == '__main__':
         description=u'Python API Wrapper for NewRelic API',
         author=u'Andrew Gross',
         author_email=u'andrew.w.gross@gmail.com',
+        package_data={ "pyrelic.packages.requests": ["*.pem"] },
+        include_package_data=True,
         url='https://github.com/andrewgross/pyrelic',
-        packages=find_packages(exclude=['*tests*']),
+        packages=packages,
         classifiers=(
             'Development Status :: 3 - Alpha',
             'Intended Audience :: Developers',
