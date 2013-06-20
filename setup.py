@@ -37,14 +37,14 @@ def parse_requirements():
 local_file = lambda f: \
     open(os.path.join(os.path.dirname(__file__), f)).readlines()
 
-install_requires, dependency_links = parse_requirements()
+#install_requires, dependency_links = parse_requirements()
 
 if __name__ == '__main__':
 
     setup(
         name="pyrelic",
         license="GPL",
-        version='0.5.2',
+        version='0.5.3',
         description=u'Python API Wrapper for NewRelic API',
         long_description=open('README.md').read(),
         author=u'Andrew Gross',
