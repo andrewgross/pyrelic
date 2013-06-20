@@ -44,7 +44,7 @@ if __name__ == '__main__':
     setup(
         name="pyrelic",
         license="GPL",
-        version='0.5.1',
+        version='0.5.2',
         description=u'Python API Wrapper for NewRelic API',
         long_description=open('README.md').read(),
         author=u'Andrew Gross',
