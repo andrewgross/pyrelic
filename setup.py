@@ -51,8 +51,6 @@ if __name__ == '__main__':
         author_email=u'andrew.w.gross@gmail.com',
         url='https://github.com/andrewgross/pyrelic',
         packages=find_packages(exclude=['*tests*']),
-        install_requires=install_requires,
-        dependency_links=dependency_links,
         classifiers=(
             'Development Status :: 3 - Alpha',
             'Intended Audience :: Developers',
