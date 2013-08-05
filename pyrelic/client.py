@@ -202,7 +202,8 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         # data that can be returned without a regex search
         response = self._make_get_request(uri,
                                           parameters=parameters,
-                                          timeout=5.000)
+                                          timeout=(5.000 if self.timeout < 5.0
+                                                         else self.timeout))
 
         # Parse the response. It seems clearer to return a dict of
         # metrics/fields instead of a list of metric objects. It might be more
@@ -277,7 +278,8 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         # amount of data that can be returned
         response = self._make_get_request(uri,
                                           parameters=parameters,
-                                          timeout=5.000)
+                                          timeout=(5.000 if self.timeout < 5.0
+                                                         else self.timeout))
 
         # Parsing our response into lightweight objects and creating a list.
         # The dividing factor is the time period covered by the metric,
