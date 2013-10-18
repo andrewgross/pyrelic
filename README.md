@@ -24,9 +24,9 @@ c = Client(account_id='12345', api_key='1234567890abcdef1234567890abcdef')
 metrics = c.get_metric_data(['My Application'], ['Database/my_table/select', 'Database/my_table/update'], ['average_value'], '2012-03-28T15:48:00Z', '2012-03-29T15:48:00Z')
 
 for metric in metrics:
-    if metric.name contains "select":
+    if "select" in metric.name contains:
         print "Average Select Time: %s" % metric.average_value
-    if metric.name contains "update":
+    if  "update" in metric.name:
         print "Average Update Time: %s" % metric.average_value
 
 # Careful of API timeouts!
