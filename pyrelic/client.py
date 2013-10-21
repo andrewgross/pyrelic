@@ -30,7 +30,7 @@ class Client(BaseClient):
         """
         Create a NewRelic REST API client
         Required Parameters: account_id, api_key
-        Optional Parameters: proxy, retries, retry_delay, timeout, debug
+        Optional Parameters: proxy, retries, retry_delay, timeout
         """
         super(Client, self).__init__(proxy=proxy,
                                      retries=retries,
