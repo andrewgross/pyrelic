@@ -1,7 +1,7 @@
-import pyrelic.packages.requests as requests
 import logging
-
 from time import sleep
+import pyrelic.packages.requests as requests
+
 
 logger = logging.getLogger(__name__)
 
@@ -10,12 +10,7 @@ class BaseClient(object):
     """
     A Client for interacting with remote APIs via python requests
     """
-    def __init__(self,
-                 proxy=None,
-                 retries=3,
-                 retry_delay=1,
-                 timeout=1.000):
-
+    def __init__(self, proxy=None, retries=3, retry_delay=1, timeout=1.000):
         self.retries = retries
         self.retry_delay = retry_delay
         self.timeout = timeout
@@ -35,11 +30,9 @@ class BaseClient(object):
         raise error
 
     def _normalize_proxy(self, proxy):
-        if type(proxy) is 'str' and ':' in proxy:
-            return {"http": proxy,
-                    "https": proxy,
-                    }
-        elif type(proxy) is 'dict':
+        if isinstance(proxy, basestring) and ':' in proxy:
+            return { "http": proxy, "https": proxy }
+        elif isinstance(proxy, dict):
             return proxy
 
     def _make_request(self, request, uri, **kwargs):
@@ -67,15 +60,11 @@ class BaseClient(object):
         response = None
         while attempts <= self.retries:
             try:
-                response = request(uri,
-                                   headers=self.headers,
-                                   proxies=self.proxy,
-                                   **kwargs)
+                response = request(uri, headers=self.headers, proxies=self.proxy, **kwargs)
 
             except (requests.ConnectionError, requests.HTTPError) as ce:
                 attempts += 1
-                msg = "Attempting retry {attempts} after {delay} seconds"\
-                      .format(attempts=attempts, delay=self.retry_delay)
+                msg = "Attempting retry {attempts} after {delay} seconds".format(attempts=attempts, delay=self.retry_delay)
                 logger.error(ce.__doc__)
                 logger.error(msg)
                 sleep(self.retry_delay)
@@ -97,10 +86,7 @@ class BaseClient(object):
         """
         if not timeout:
             timeout = self.timeout
-        return self._make_request(requests.get,
-                                  uri,
-                                  params=parameters,
-                                  timeout=timeout)
+        return self._make_request(requests.get, uri, params=parameters, timeout=timeout)
 
     def _make_post_request(self, uri, payload, timeout=None):
         """
@@ -109,7 +95,4 @@ class BaseClient(object):
         """
         if not timeout:
             timeout = self.timeout
-        return self._make_request(requests.post,
-                                  uri,
-                                  data=payload,
-                                  timeout=timeout)
+        return self._make_request(requests.post, uri, data=payload, timeout=timeout)

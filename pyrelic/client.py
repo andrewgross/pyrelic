@@ -20,22 +20,13 @@ class Client(BaseClient):
     """
     A Client for interacting with New Relic resources
     """
-    def __init__(self,
-                 account_id=None,
-                 api_key=None,
-                 proxy=None,
-                 retries=3,
-                 retry_delay=1,
-                 timeout=1.000):
+    def __init__(self, account_id=None, api_key=None, proxy=None, retries=3, retry_delay=1, timeout=1.000):
         """
         Create a NewRelic REST API client
         Required Parameters: account_id, api_key
         Optional Parameters: proxy, retries, retry_delay, timeout
         """
-        super(Client, self).__init__(proxy=proxy,
-                                     retries=retries,
-                                     retry_delay=retry_delay,
-                                     timeout=timeout)
+        super(Client, self).__init__(proxy=proxy, retries=retries, retry_delay=retry_delay, timeout=timeout)
 
         if not account_id or not api_key:
             raise NewRelicCredentialException("""
@@ -116,8 +107,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         Method: Get
         """
         endpoint = "https://rpm.newrelic.com"
-        uri = "{endpoint}/accounts/{id}/applications.xml"\
-              .format(endpoint=endpoint, id=self.account_id)
+        uri = "{endpoint}/accounts/{id}/applications.xml".format(endpoint=endpoint, id=self.account_id)
         response = self._make_get_request(uri)
         applications = []
 
@@ -200,10 +190,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
 
         # A longer timeout is needed due to the amount of
         # data that can be returned without a regex search
-        response = self._make_get_request(uri,
-                                          parameters=parameters,
-                                          timeout=(5.000 if self.timeout < 5.0
-                                                         else self.timeout))
+        response = self._make_get_request(uri, parameters=parameters, timeout=max(self.timeout, 5.0))
 
         # Parse the response. It seems clearer to return a dict of
         # metrics/fields instead of a list of metric objects. It might be more
@@ -218,13 +205,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
             metrics[metric.get('name')] = fields
         return metrics
 
-    def get_metric_data(self,
-                        applications,
-                        metrics,
-                        field,
-                        begin,
-                        end,
-                        summary=False):
+    def get_metric_data(self, applications, metrics, field, begin, end, summary=False):
         """
         Requires: account ID,
                   list of application IDs,
@@ -276,10 +257,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
               .format(endpoint=endpoint, account_id=self.account_id)
         # A longer timeout is needed due to the
         # amount of data that can be returned
-        response = self._make_get_request(uri,
-                                          parameters=parameters,
-                                          timeout=(5.000 if self.timeout < 5.0
-                                                         else self.timeout))
+        response = self._make_get_request(uri, parameters=parameters, timeout=max(self.timeout, 5.0))
 
         # Parsing our response into lightweight objects and creating a list.
         # The dividing factor is the time period covered by the metric,
@@ -302,11 +280,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         """
         endpoint = "https://rpm.newrelic.com"
         remote_file = "threshold_values.xml"
-        uri = "{endpoint}/accounts/{account_id}/applications/{app_id}/{xml}"\
-              .format(endpoint=endpoint,
-                      account_id=self.account_id,
-                      app_id=application_id,
-                      xml=remote_file)
+        uri = "{endpoint}/accounts/{account_id}/applications/{app_id}/{xml}".format(endpoint=endpoint, account_id=self.account_id, app_id=application_id, xml=remote_file)
         response = self._make_get_request(uri)
         thresholds = []
 
