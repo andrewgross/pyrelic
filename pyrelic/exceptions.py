@@ -1,7 +1,6 @@
 class NewRelicApiException(Exception):
     def __init__(self, message):
         super(NewRelicApiException, self).__init__()
-        print message
 
 
 class NewRelicInvalidApiKeyException(NewRelicApiException):
