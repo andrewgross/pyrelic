@@ -36,7 +36,7 @@ def test_make_request_non_200():
     # Then I should raise the appropriate requests exception
     c._make_request.when.called_with(requests.get,
                                      "https://www.github.com")\
-     .should.throw(requests.HTTPError)
+     .should.throw(requests.RequestException)
 
 
 def test_client_proxy_string():
