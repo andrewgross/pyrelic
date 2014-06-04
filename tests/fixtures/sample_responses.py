@@ -92,3 +92,19 @@ DELETE_APPLICATION_SUCCESS_SAMPLE = """
   </application>
 </applications>
 """
+
+VIEW_SERVERS_SAMPLE = """
+<?xml version="1.0" encoding="UTF-8"?>
+<servers type="array">
+  <server>
+    <overview-url>https://rpm.newrelic.com/accounts/1/servers/555</overview-url>
+    <hostname>my-hostname.newrelic.com</hostname>
+    <id type="integer">555</id>
+  </server>
+  <server>
+    <overview-url>https://rpm.newrelic.com/accounts/1/servers/556</overview-url>
+    <hostname>my-hostname-2.newrelic.com</hostname>
+    <id type="integer">556</id>
+  </server>
+</servers>
+"""
