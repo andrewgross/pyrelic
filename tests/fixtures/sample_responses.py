@@ -108,3 +108,21 @@ VIEW_SERVERS_SAMPLE = """
   </server>
 </servers>
 """
+
+DELETE_SERVERS_SUCCESS_SAMPLE = """
+<?xml version="1.0" encoding="UTF-8"?>
+<servers type="array">
+  <server name="My Server" id="123456">
+    <result>deleted</result>
+  </server>
+</servers>
+"""
+
+DELETE_SERVERS_FAILURE_SAMPLE = """
+<?xml version="1.0" encoding="UTF-8"?>
+<servers type="array">
+  <server name="My Server" id="123456">
+    <result>failed</result>
+  </server>
+</servers>
+"""

@@ -18,6 +18,8 @@ from ..fixtures.sample_responses import (METRIC_DATA_SAMPLE,
                                          THRESHOLD_VALUES_SAMPLE,
                                          DELETE_APPLICATION_SUCCESS_SAMPLE,
                                          VIEW_SERVERS_SAMPLE,
+                                         DELETE_SERVERS_SUCCESS_SAMPLE,
+                                         DELETE_SERVERS_FAILURE_SAMPLE,
                                          )
 
 NEW_RELIC_REGEX = re.compile(".*.newrelic.com/.*")
@@ -229,3 +231,34 @@ def test_view_servers():
     result[1].overview_url.should.equal('https://rpm.newrelic.com/accounts/1/servers/556')
     result[1].hostname.should.equal('my-hostname-2.newrelic.com')
     result[1].server_id.should.equal('556')
+
+
+
+@httpretty.activate
+def test_delete_servers_success():
+    httpretty.register_uri(httpretty.DELETE,
+                           NEW_RELIC_REGEX,
+                           body=DELETE_SERVERS_SUCCESS_SAMPLE,
+                           status=200
+                           )
+    # When I make an API request to delete a server
+    c = Client(account_id="1", api_key="2")
+    result = c.delete_servers(server_id="123456")
+
+    # Then I should receive an array of failed deletions
+    result.should.equal([])
+
+
+@httpretty.activate
+def test_delete_servers_failure():
+    httpretty.register_uri(httpretty.DELETE,
+                           NEW_RELIC_REGEX,
+                           body=DELETE_SERVERS_FAILURE_SAMPLE,
+                           status=200
+                           )
+    # When I make an API request to delete a server
+    c = Client(account_id="1", api_key="2")
+    result = c.delete_servers(server_id="123456")
+
+    # Then I should receive an array of failed deletions
+    result.should.equal([{'server_id': '123456'}])
