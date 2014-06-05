@@ -43,8 +43,6 @@ if __name__ == '__main__':
 
     packages = find_packages(exclude=['*tests*'])
 
-    print packages
-
     setup(
         name="pyrelic",
         license="GPL",

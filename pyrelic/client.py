@@ -14,6 +14,7 @@ from .application import Application
 from .base_client import BaseClient
 from .metric import Metric
 from .threshold import Threshold
+from .server import Server
 
 
 class Client(BaseClient):
@@ -291,3 +292,45 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
                 properties[tag] = text
             thresholds.append(Threshold(properties))
         return thresholds
+
+    def view_servers(self):
+        """
+        Requires: account ID (taken from Client object)
+        Returns: a list of Server objects
+        Endpoint: api.newrelic.com
+        Errors: 403 Invalid API Key
+        Method: Get
+        """
+        endpoint = "https://api.newrelic.com"
+        uri = "{endpoint}/api/v1/accounts/{id}/servers.xml".format(endpoint=endpoint, id=self.account_id)
+        response = self._make_get_request(uri)
+        servers = []
+
+        for server in response.findall('.//server'):
+            server_properties = {}
+            for field in server:
+                server_properties[field.tag] = field.text
+            servers.append(Server(server_properties))
+        return servers
+
+    def delete_servers(self, server_id):
+        """
+        Requires: account ID, server ID
+        Input should be server id
+        Returns: list of failed deletions (if any)
+        Endpoint: api.newrelic.com
+        Errors: 403 Invalid API Key
+        Method: Delete
+        """
+        endpoint = "https://api.newrelic.com"
+        uri = "{endpoint}/api/v1/accounts/{account_id}/servers/{server_id}.xml".format(
+            endpoint=endpoint,
+            account_id=self.account_id,
+            server_id=server_id)
+        response = self._make_delete_request(uri)
+        failed_deletions = []
+        for server in response.findall('.//server'):
+            if not 'deleted' in server.findall('.//result')[0].text:
+                failed_deletions.append({'server_id': server.get('id')})
+
+        return failed_deletions

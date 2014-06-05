@@ -15,6 +15,7 @@ from .client import Client
 from .application import Application
 from .metric import Metric
 from .threshold import Threshold
+from .server import Server
 
 __all__ = (
     'NewRelicCredentialException',
@@ -26,5 +27,6 @@ __all__ = (
     'BaseClient'
     'Application',
     'Metric',
-    'Threshold'
+    'Threshold',
+    'Server',
 )
