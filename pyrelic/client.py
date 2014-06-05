@@ -323,7 +323,7 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         Method: Delete
         """
         endpoint = "https://api.newrelic.com"
-        uri = "{endpoint}/api/v1/accounts/{account_id}/servers/{server_id}".format(
+        uri = "{endpoint}/api/v1/accounts/{account_id}/servers/{server_id}.xml".format(
             endpoint=endpoint,
             account_id=self.account_id,
             server_id=server_id)
