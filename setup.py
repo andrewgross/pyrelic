@@ -50,7 +50,6 @@ if __name__ == '__main__':
         description=u'Python API Wrapper for NewRelic API',
         author=u'Andrew Gross',
         author_email=u'andrew.w.gross@gmail.com',
-        package_data={ "pyrelic.packages.requests": ["*.pem"] },
         include_package_data=True,
         url='https://github.com/andrewgross/pyrelic',
         packages=packages,
