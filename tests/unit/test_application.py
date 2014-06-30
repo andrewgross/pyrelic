@@ -2,6 +2,10 @@ from pyrelic import Application
 
 
 def test_application_bad_initialization():
+    """
+    Create an Application Object with bad arguments
+    """
+
     # When I create a application object without enough data
 
     # Then it should raise a key error
@@ -9,6 +13,9 @@ def test_application_bad_initialization():
 
 
 def test_application_good_initialization():
+    """
+    Create an Application Object with proper arguments
+    """
     # When I create a application object with the right data
     fake_properties = {'name': "name_foo",
                        'id': "app_id_foo",

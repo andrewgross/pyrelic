@@ -6,10 +6,12 @@ from nose.tools import nottest
 from pyrelic import BaseClient
 
 
-# _make_request Tests
 @nottest  # Skip until we can properly simulate timeouts
 @httpretty.activate
 def test_make_request_timeout():
+    """
+    Remote calls should time out
+    """
     httpretty.register_uri(httpretty.GET, "www.example.com",
                            body=None,
                            )
@@ -26,32 +28,39 @@ def test_make_request_timeout():
 
 @httpretty.activate
 def test_make_request_non_200():
-    httpretty.register_uri(httpretty.GET, "https://www.github.com",
-                           body=None,
-                           status=400
-                           )
+    """
+    Bad HTTP Responses should throw an error
+    """
+    httpretty.register_uri(httpretty.GET, "http://foobar.com",
+                           body="123", status=400)
     # When I make an API request and receive a 400
     c = BaseClient()
 
     # Then I should raise the appropriate requests exception
     c._make_request.when.called_with(requests.get,
-                                     "https://www.github.com")\
+                                     "http://foobar.com")\
      .should.throw(requests.RequestException)
 
 
 def test_client_proxy_string():
+    """
+    Base Client should parse proxy strings
+    """
     # When I create a client with a proxy as a string
     proxy = "baz:1234"
-    c = BaseClient()
+    c = BaseClient(proxy=proxy)
 
     # Then the Client should create the proxy config as a dictionary
-    c._normalize_proxy.should.be({"http": proxy, "https": proxy})
+    c.proxy.should.equal({"http": proxy, "https": proxy})
 
 
 def test_client_proxy_dict():
-    # When I create a client with a proxy as a string
+    """
+    Base Client should parse proxy dicts
+    """
+    # When I create a client with a proxy as a dict
     proxy = {"baz": "1234"}
-    c = BaseClient()
+    c = BaseClient(proxy=proxy)
 
     # Then the Client should create the proxy config as a dictionary
-    c._normalize_proxy.should.be(proxy)
+    c.proxy.should.equal(proxy)

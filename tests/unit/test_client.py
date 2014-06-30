@@ -301,6 +301,7 @@ def test_notify_deployment_by_id_success():
     result.should.have.key('agent-id')
     result['agent-id'].should.equal('456')
 
+
 @httpretty.activate
 def test_notify_deployment_by_name_success():
     httpretty.register_uri(httpretty.POST,

@@ -31,7 +31,7 @@ class BaseClient(object):
 
     def _normalize_proxy(self, proxy):
         if isinstance(proxy, basestring) and ':' in proxy:
-            return { "http": proxy, "https": proxy }
+            return {"http": proxy, "https": proxy}
         elif isinstance(proxy, dict):
             return proxy
 
