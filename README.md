@@ -84,3 +84,19 @@ failed_deletion = c.delete_servers("server_id")
 if len(failed_deletions) is 0:
     print "Server deleted succesfully!"
 ```
+
+### Notify Deployments by ID
+```python
+response = c.notify_deployment(application_id=123, description='description',
+                                 revision='1.2.3', user='stevemac',
+                                 changelog='orange')
+print response['timestamp']
+```
+
+### Notify Deployments by ID
+```python
+response = c.notify_deployment(application_name="iMyFace.ly", description='description',
+                                 revision='1.2.3', user='stevemac',
+                                 changelog='orange')
+print response['timestamp']
+```
