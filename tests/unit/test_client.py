@@ -20,6 +20,7 @@ from ..fixtures.sample_responses import (METRIC_DATA_SAMPLE,
                                          VIEW_SERVERS_SAMPLE,
                                          DELETE_SERVERS_SUCCESS_SAMPLE,
                                          DELETE_SERVERS_FAILURE_SAMPLE,
+                                         NOTIFY_DEPLOYMENT_SUCCESS
                                          )
 
 NEW_RELIC_REGEX = re.compile(".*.newrelic.com/.*")
@@ -226,7 +227,7 @@ def test_view_servers():
     result[0].overview_url.should.equal('https://rpm.newrelic.com/accounts/1/servers/555')
     result[0].hostname.should.equal('my-hostname.newrelic.com')
     result[0].server_id.should.equal('555')
-    
+
     result[1].should.be.an('pyrelic.Server')
     result[1].overview_url.should.equal('https://rpm.newrelic.com/accounts/1/servers/556')
     result[1].hostname.should.equal('my-hostname-2.newrelic.com')
@@ -262,3 +263,64 @@ def test_delete_servers_failure():
 
     # Then I should receive an array of failed deletions
     result.should.equal([{'server_id': '123456'}])
+
+@httpretty.activate
+def test_notify_deployment_failure():
+    httpretty.register_uri(httpretty.POST,
+                           NEW_RELIC_REGEX,
+                           body=NOTIFY_DEPLOYMENT_SUCCESS,
+                           status=200
+                           )
+    # When I make an API request to notify of deployment with no arguments
+    c = Client(account_id="1", api_key="2")
+
+    # Then I should receive a failure
+    c.notify_deployment.when.called_with(None).should.throw(NewRelicInvalidParameterException)
+
+
+@httpretty.activate
+def test_notify_deployment_by_id_success():
+    httpretty.register_uri(httpretty.POST,
+                           NEW_RELIC_REGEX,
+                           body=NOTIFY_DEPLOYMENT_SUCCESS,
+                           status=200
+                           )
+    # When I make an API request to notify of deployment
+    c = Client(account_id="1", api_key="2")
+
+    # Then I should receive a valid response
+    result = c.notify_deployment(application_id=123, description='description',
+                                 revision='1.2.3', user='stevemac',
+                                 changelog='orange')
+
+    result.should.be.an('dict')
+
+    result.should.have.key('account-id')
+    result['account-id'].should.equal('123')
+
+    result.should.have.key('agent-id')
+    result['agent-id'].should.equal('456')
+
+@httpretty.activate
+def test_notify_deployment_by_name_success():
+    httpretty.register_uri(httpretty.POST,
+                           NEW_RELIC_REGEX,
+                           body=NOTIFY_DEPLOYMENT_SUCCESS,
+                           status=200
+                           )
+    # When I make an API request to notify of deployment
+    c = Client(account_id="1", api_key="2")
+
+    # Then I should receive a valid response
+    result = c.notify_deployment(application_name=123, description='description',
+                                 revision='1.2.3', user='stevemac',
+                                 changelog='orange')
+
+    result.should.be.an('dict')
+
+    result.should.have.key('account-id')
+    result['account-id'].should.equal('123')
+
+    result.should.have.key('agent-id')
+    result['agent-id'].should.equal('456')
+

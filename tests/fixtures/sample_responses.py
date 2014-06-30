@@ -126,3 +126,34 @@ DELETE_SERVERS_FAILURE_SAMPLE = """
   </server>
 </servers>
 """
+
+NOTIFY_DEPLOYMENT_SUCCESS = """
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment>
+  <account-id type="integer">123</account-id>
+  <agent-id type="integer">456</agent-id>
+  <avg-apdex-f type="integer" nil="true"></avg-apdex-f>
+  <avg-apdex-s type="integer" nil="true"></avg-apdex-s>
+  <avg-apdex-t type="integer" nil="true"></avg-apdex-t>
+  <avg-apdex-threshold type="float" nil="true"></avg-apdex-threshold>
+  <avg-cpu type="float">0.08306176719325846</avg-cpu>
+  <avg-db type="float">0.021107893280112446</avg-db>
+  <avg-enduser-apdex-f type="integer" nil="true"></avg-enduser-apdex-f>
+  <avg-enduser-apdex-s type="integer" nil="true"></avg-enduser-apdex-s>
+  <avg-enduser-apdex-t type="integer" nil="true"></avg-enduser-apdex-t>
+  <avg-enduser-apdex-threshold type="integer" nil="true"></avg-enduser-apdex-threshold>
+  <avg-enduser-rt type="float">0.0</avg-enduser-rt>
+  <avg-enduser-throughput type="float">0.0</avg-enduser-throughput>
+  <avg-errors type="float">3.33</avg-errors>
+  <avg-memory type="float">24.242208090520677</avg-memory>
+  <avg-rt type="float">0.0007303333344558875</avg-rt>
+  <avg-throughput type="float">30.0</avg-throughput>
+  <changelog nil="true"></changelog>
+  <description>pyrelic testing</description>
+  <end-time type="datetime" nil="true"></end-time>
+  <id type="integer">2075440</id>
+  <revision>test</revision>
+  <timestamp type="datetime">2014-06-27T22:27:43-07:00</timestamp>
+  <user>open2study</user>
+</deployment>
+"""
