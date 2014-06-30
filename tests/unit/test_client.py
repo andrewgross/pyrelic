@@ -28,6 +28,9 @@ NEW_RELIC_REGEX = re.compile(".*.newrelic.com/.*")
 
 # Client Initialization
 def test_client_account_id():
+    """
+    Create Client without ID
+    """
     # When I create a client without a client id
 
     # Then it should fail with a NewRelicCredentialException
@@ -36,6 +39,9 @@ def test_client_account_id():
 
 
 def test_client_api_key():
+    """
+    Create Client without API Key
+    """
     # When I create a client without an api_key
 
     # Then it should fail with a NewRelicCredentialException
@@ -45,6 +51,9 @@ def test_client_api_key():
 
 # Handle API Error
 def test_handle_api_error_400():
+    """
+    Client should error on HTTP 400
+    """
     # When I make an API request and receive a 400
     c = Client(account_id="foo", api_key="bar")
     response = Mock(status_code=400)
@@ -56,7 +65,10 @@ def test_handle_api_error_400():
 
 
 def test_handle_api_error_403():
-    # When I make an API request and receive a 400
+    """
+    Client should raise API key error on HTTP 403
+    """
+    # When I make an API request and receive a 403
     c = Client(account_id="foo", api_key="bar")
     response = Mock(status_code=403)
     error = Mock(message="foo", response=response)
@@ -67,7 +79,10 @@ def test_handle_api_error_403():
 
 
 def test_handle_api_error_404():
-    # When I make an API request and receive a 400
+    """
+    Client should raise Unknown Application error on HTTP 404
+    """
+    # When I make an API request and receive a 404
     c = Client(account_id="foo", api_key="bar")
     response = Mock(status_code=404)
     error = Mock(message="foo", response=response)
@@ -78,7 +93,10 @@ def test_handle_api_error_404():
 
 
 def test_handle_api_error_422():
-    # When I make an API request and receive a 400
+    """
+    Client should raise Invalid Parameter error on HTTP 422
+    """
+    # When I make an API request and receive a 422
     c = Client(account_id="foo", api_key="bar")
     response = Mock(status_code=422)
     error = Mock(message="foo", response=response)
@@ -90,6 +108,9 @@ def test_handle_api_error_422():
 
 # API Rate Limiting
 def test_api_rate_limit_exceeded_no_previous_call():
+    """
+    API Rate limit should not trigger on first call
+    """
     # When I make an API request with a rate limit and I am have no previous requests
     def foobar():
         pass
@@ -101,6 +122,9 @@ def test_api_rate_limit_exceeded_no_previous_call():
 
 
 def test_api_rate_limit_exceeded_outside_window():
+    """
+    API Rate limit should not trigger outside of rate limit window
+    """
     # When I make an API request with a rate limit and I am have a previous
     # request outside of the time window
     def foobar():
@@ -114,6 +138,9 @@ def test_api_rate_limit_exceeded_outside_window():
 
 
 def test_api_rate_limit_exceeded_inside_window():
+    """
+    API Rate limit should trigger inside of rate limit window
+    """
     # When I make an API request with a rate limit and I am have a previous
     # request inside of the time window
     def foobar():
@@ -129,6 +156,9 @@ def test_api_rate_limit_exceeded_inside_window():
 
 @httpretty.activate
 def test_view_applications():
+    """
+    Client should be able to list Applications
+    """
     httpretty.register_uri(httpretty.GET, NEW_RELIC_REGEX,
                            body=VIEW_APPLICATIONS_SAMPLE,
                            status=200
@@ -144,6 +174,9 @@ def test_view_applications():
 
 @httpretty.activate
 def test_get_metric_names():
+    """
+    Client should be able to list Metric names
+    """
     httpretty.register_uri(httpretty.GET,
                            NEW_RELIC_REGEX,
                            body=METRIC_NAMES_SAMPLE,
@@ -163,6 +196,9 @@ def test_get_metric_names():
 
 @httpretty.activate
 def test_get_metric_data():
+    """
+    Client should be able to list Metrics
+    """
     httpretty.register_uri(httpretty.GET,
                            NEW_RELIC_REGEX,
                            body=METRIC_DATA_SAMPLE,
@@ -179,6 +215,9 @@ def test_get_metric_data():
 
 @httpretty.activate
 def test_get_threshold_values():
+    """
+    Client should be able to list Thresholds
+    """
     httpretty.register_uri(httpretty.GET,
                            NEW_RELIC_REGEX,
                            body=THRESHOLD_VALUES_SAMPLE,
@@ -195,6 +234,9 @@ def test_get_threshold_values():
 
 @httpretty.activate
 def test_delete_applications():
+    """
+    Client should be able to delete Applications
+    """
     httpretty.register_uri(httpretty.POST,
                            NEW_RELIC_REGEX,
                            body=DELETE_APPLICATION_SUCCESS_SAMPLE,
@@ -210,6 +252,9 @@ def test_delete_applications():
 
 @httpretty.activate
 def test_view_servers():
+    """
+    Client should be able to list Servers
+    """
     httpretty.register_uri(httpretty.GET, NEW_RELIC_REGEX,
                            body=VIEW_SERVERS_SAMPLE,
                            status=200
@@ -237,6 +282,9 @@ def test_view_servers():
 
 @httpretty.activate
 def test_delete_servers_success():
+    """
+    Client should be able to delete Servers
+    """
     httpretty.register_uri(httpretty.DELETE,
                            NEW_RELIC_REGEX,
                            body=DELETE_SERVERS_SUCCESS_SAMPLE,
@@ -252,6 +300,9 @@ def test_delete_servers_success():
 
 @httpretty.activate
 def test_delete_servers_failure():
+    """
+    Client should be able return failed server deletions
+    """
     httpretty.register_uri(httpretty.DELETE,
                            NEW_RELIC_REGEX,
                            body=DELETE_SERVERS_FAILURE_SAMPLE,
@@ -266,6 +317,9 @@ def test_delete_servers_failure():
 
 @httpretty.activate
 def test_notify_deployment_failure():
+    """
+    Client should fail to notify_deployment with bad data
+    """
     httpretty.register_uri(httpretty.POST,
                            NEW_RELIC_REGEX,
                            body=NOTIFY_DEPLOYMENT_SUCCESS,
@@ -280,6 +334,9 @@ def test_notify_deployment_failure():
 
 @httpretty.activate
 def test_notify_deployment_by_id_success():
+    """
+    Client should be able to notify deployments with application id
+    """
     httpretty.register_uri(httpretty.POST,
                            NEW_RELIC_REGEX,
                            body=NOTIFY_DEPLOYMENT_SUCCESS,
@@ -304,6 +361,9 @@ def test_notify_deployment_by_id_success():
 
 @httpretty.activate
 def test_notify_deployment_by_name_success():
+    """
+    Client should be able to notify deployments with application name
+    """
     httpretty.register_uri(httpretty.POST,
                            NEW_RELIC_REGEX,
                            body=NOTIFY_DEPLOYMENT_SUCCESS,

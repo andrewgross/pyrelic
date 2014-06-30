@@ -2,6 +2,9 @@ from pyrelic import Threshold
 
 
 def test_threshold_bad_initialization():
+    """
+    Create Threshold object with bad data
+    """
     # When I create a threshold object without enough data
 
     # Then it should raise a key error
@@ -9,6 +12,9 @@ def test_threshold_bad_initialization():
 
 
 def test_threshold_good_initialization():
+    """
+    Create Threshold object with good data
+    """
     # When I create a threshold object with the right data
     fake_properties = {'name': "name_foo",
                        'metric_value': "metric_value_foo",
