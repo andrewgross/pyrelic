@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import re
+import six
 import shlex
 import subprocess
 import sys
@@ -10,7 +11,11 @@ os.environ['TESTING'] = "1"
 
 
 def wrap_text_with(color):
-    return lambda msg: '{}{}{}'.format(color, msg, NC)
+    def wrapper(msg):
+        if type(msg) is six.binary_type:
+            msg = msg.decode('utf-8')
+        return '{0}{1}{2}'.format(color, msg, NC)
+    return wrapper
 
 HIGHLIGHT = '\033[1;37m'
 GREEN = '\033[1;32m'
@@ -236,7 +241,7 @@ possible_module_infos = set([
 
 
 def check_files(files, check):
-    check_files = filter(lambda name: should_check_file(check, name), files)
+    check_files = files #list(filter(lambda name: should_check_file(check, name), files))
 
     if check_files:
         if check.get('ignore_noqa_lines'):
@@ -270,20 +275,20 @@ def check_files(files, check):
         out, err = process.communicate()
 
         if out or err:
-            print error(' ✗')
-            print ' ', '\n  '.join(out.splitlines())
+            print(error(' ✗'))
+            print(' ', '\n  '.join(out.decode('utf-8').splitlines()))
 
             if err:
-                print err
+                print(err.decode('utf-8'))
 
             if 'error_message' in check:
                 print
-                print highlight(check['error_message'])
+                print(highlight(check['error_message']))
                 print
 
             return 1
 
-        print ok(' ✔ ')
+        print(ok(' ✔ '))
 
     return 0
 
@@ -302,11 +307,11 @@ def run(test_name, command, env=None):
             stderr=subprocess.STDOUT,
             env=full_env)
     except subprocess.CalledProcessError as e:
-        print error(' ✗')
-        print e.output
-        raise SystemExit(e.returncode)
+        print(error(' ✗'))
+        print(e.output.decode('utf-8'))
+        raise(SystemExit(e.returncode))
     else:
-        print ok(' ✔ ')
+        print(ok(' ✔ '))
 
 
 def check_call(command):
@@ -317,11 +322,11 @@ def get_committed_files():
     files = []
     out = subprocess.check_output(shlex.split('git status --porcelain'))
     for line in out.splitlines():
-        match = modified.match(line.strip())
+        match = modified.match(line.strip().decode('utf-8'))
         if match:
             files.append(match.group('name'))
 
-    return filter(lambda f: 'scripts/pre-commit' not in f, files)
+    return list(filter(lambda f: 'pre-commit' not in f, files))
 
 
 def main(files, is_git_hook):
@@ -329,7 +334,7 @@ def main(files, is_git_hook):
     if is_git_hook:
         files = get_committed_files()
         # Stash any changes to the working tree that are not going to be committed
-        print highlight('Git stashing untracked changes...')
+        print(highlight('Git stashing untracked changes...'))
         check_call('git stash --include-untracked --keep-index')
 
     any_changes_on_files_ending_with = lambda ext: any([f.endswith(ext) for f in files])
