@@ -43,7 +43,7 @@ install_deps:
 
 	@if [ -z $$SKIP_DEPS ]; then \
 		echo "Installing missing dependencies..."; \
-		[ -e development.txt  ] && pip install -r development.txt; \
+		pip install -e ".[tests]"; \
 	fi
 
 	@python setup.py develop &> .build.log
