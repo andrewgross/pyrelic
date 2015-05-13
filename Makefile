@@ -9,7 +9,9 @@ PACKAGE=pyrelic
 CUSTOM_PIP_INDEX=
 # </variables>
 
-all: unit functional integration acceptance
+all: prepare test
+
+test: unit functional integration acceptance
 
 unit:
 	@make run_test suite=unit
@@ -61,8 +63,7 @@ publish:
 		python setup.py register -r "$(CUSTOM_PIP_INDEX)"; \
 		python setup.py sdist upload -r "$(CUSTOM_PIP_INDEX)"; \
 	else \
-		echo "You should create a file called \`.pypirc' under your home dir.\n"; \
-		echo "That's the right place to configure \`pypi' repos.\n"; \
-		echo "Read more about it here: https://github.com/Yipit/yipit/blob/dev/docs/rfc/RFC00007-python-packages.md"; \
+		echo "You should create a file called '.pypirc' under your home dir.\n"; \
+		echo "That's the right place to configure 'pypi' repos.\n"; \
 		exit 1; \
 	fi

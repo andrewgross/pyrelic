@@ -1,7 +1,12 @@
 language: python
+
+sudo: false
+
 python:
   - "2.6"
   - "2.7"
+  - "3.3"
+  - "3.4"
 install: "pip install -r development.txt --use-mirrors"
 script:
-  - make unit
+  - make test
