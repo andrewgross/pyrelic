@@ -7,6 +7,8 @@ While New Relic's documentation for their API is very solid, the usage details a
 
 The documentation in this library's docstrings was derived from the [New Relic Ruby API](https://github.com/newrelic/newrelic_api).
 
+**NOTE** See the Changelog for notes about the latest release.
+
 ## Installation
 ```bash
 $ pip install pyrelic
