@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import logging
 from time import sleep
-import pyrelic.packages.requests as requests
+import requests
 
 
 logger = logging.getLogger(__name__)

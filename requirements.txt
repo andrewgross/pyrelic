@@ -1,1 +1,2 @@
-# Lets keep this a non empty file
+elementtree==1.2.6-20050316
+requests==2.6.2

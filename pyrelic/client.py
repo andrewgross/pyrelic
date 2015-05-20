@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import datetime
 
-from pyrelic.packages.elementtree import ElementTree as etree
+from elementtree import ElementTree as etree
 
 from .exceptions import (
     NewRelicApiRateLimitException,

@@ -1,4 +1,7 @@
-import pyrelic.packages.requests as requests
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import requests
 import httpretty
 
 from nose.tools import nottest

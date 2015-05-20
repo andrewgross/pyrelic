@@ -27,9 +27,9 @@ acceptance:
 		lettuce; \
 	fi
 
-prepare: clean install_deps
+setup: clean install_deps
 
-run_test:
+run_test: setup
 	@if [ -d tests/$(suite) ]; then \
 		echo "Running \033[0;32m$(suite)\033[0m test suite"; \
 		make clean && \
