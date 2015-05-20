@@ -7,4 +7,3 @@ exclude_lines =
 
 [run]
 include = pyrelic/*
-omit = pyrelic/packages/*

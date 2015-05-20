@@ -1,43 +1,7 @@
 # #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
-import os
 from setuptools import setup, find_packages
-
-
-def parse_requirements():
-    """
-    Rudimentary parser for the `requirements.txt` file
-
-    We just want to separate regular packages from links to pass them to the
-    `install_requires` and `dependency_links` params of the `setup()`
-    function properly.
-    """
-    try:
-        requirements = \
-            map(str.strip, local_file('requirements.txt'))
-    except IOError:
-        raise RuntimeError("Couldn't find the `requirements.txt' file :(")
-
-    links = []
-    pkgs = []
-    for req in requirements:
-        if not req:
-            continue
-        if 'http:' in req or 'https:' in req:
-            links.append(req)
-            name, version = re.findall("\#egg=([^\-]+)-(.+$)", req)[0]
-            pkgs.append('{0}=={1}'.format(name, version))
-        else:
-            pkgs.append(req)
-
-    return pkgs, links
-
-local_file = lambda f: \
-    open(os.path.join(os.path.dirname(__file__), f)).readlines()
-
-#install_requires, dependency_links = parse_requirements()
 
 if __name__ == '__main__':
 
@@ -46,13 +10,21 @@ if __name__ == '__main__':
     setup(
         name="pyrelic",
         license="GPL",
-        version='0.7.2',
+        version='0.7.3',
         description=u'Python API Wrapper for NewRelic API',
         author=u'Andrew Gross',
         author_email=u'andrew.w.gross@gmail.com',
         include_package_data=True,
         url='https://github.com/andrewgross/pyrelic',
         packages=packages,
+        install_requires = ["six", "requests>=2.5.0"],
+        extras_require = { "tests": [
+            "mock==1.0.1",
+            "sure==1.2.2",
+            "nose==1.2.1",
+            "coverage==3.6",
+            "httpretty==0.8.3"
+        ]},
         classifiers=(
             'Development Status :: 3 - Alpha',
             'Intended Audience :: Developers',

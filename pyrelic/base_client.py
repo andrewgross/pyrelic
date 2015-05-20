@@ -1,6 +1,7 @@
+import six
 import logging
+import requests
 from time import sleep
-import pyrelic.packages.requests as requests
 
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class BaseClient(object):
         raise error
 
     def _normalize_proxy(self, proxy):
-        if isinstance(proxy, basestring) and ':' in proxy:
+        if isinstance(proxy, six.string_types) and ':' in proxy:
             return {"http": proxy, "https": proxy}
         elif isinstance(proxy, dict):
             return proxy

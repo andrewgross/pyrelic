@@ -1,6 +1,6 @@
 import datetime
 
-from pyrelic.packages.elementtree import ElementTree as etree
+from xml.etree import ElementTree as etree
 
 from .exceptions import (
     NewRelicApiRateLimitException,
@@ -213,8 +213,8 @@ client = pyrelic.Client(account_id='12345', api_key='1234567890abcdef123456789')
         Requires: application ID
         Optional: Regex to filter metric names, limit of results
         Returns: A dictionary,
-                    key => metric name,
-                    value => list of fields available for a given metric
+                    key:  metric name,
+                    value: list of fields available for a given metric
         Method: Get
         Restrictions: Rate limit to 1x per minute
         Errors: 403 Invalid API Key, 422 Invalid Parameters
