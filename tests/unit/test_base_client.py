@@ -1,4 +1,4 @@
-import pyrelic.packages.requests as requests
+import requests
 import httpretty
 
 from nose.tools import nottest
