@@ -1,6 +1,6 @@
 ### 0.8.0
 
-* Add support for python3 thanks to @deflic for the PR
+* Add support for python3 thanks to @delfic for the PR
 * This change unvendors `requests` and `elementtree`
 
 **NOTE**: This is a potentially backwards incompatible change, it is still being tested.
